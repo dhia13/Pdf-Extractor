@@ -2,6 +2,9 @@ This is a [Next.js](https://nextjs.org/) project
 Introduction
 This is a small project made from my experience on much bigger project that required me to edit and upload pdfs 
 so i wanted to share this little tool that i made as an open source hoping it would help someone else on his journey or help people who want an easy way to extract pages from a pdf file and create new one 
+sorry for the simple ui 
+screen shots 
+![alt text](https://i.postimg.cc/wMkzG7p8/start.png)
 Comming soon
 extracting pages from multiple pdf and merging them 
 view and edit and draw on a pdf 
