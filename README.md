@@ -15,8 +15,11 @@ extracting pages from multiple pdf and merging them
 view and edit and draw on a pdf 
 create new pages adding text images to them then merging them with another 
 ## Getting Started
-First, install dep
-then 
+First run , 
+```
+npm i 
+```
+then
 ```
 npm run dev
 # or
