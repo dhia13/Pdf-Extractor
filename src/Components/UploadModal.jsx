@@ -4,6 +4,7 @@ import { IoAddCircleSharp } from "react-icons/io5";
 import { FaRegFilePdf } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { PDFDocument } from "pdf-lib";
+import UploadModelStep from "./UploadModelStep0.69";
 // import UploadModelStep from "../UploadModelStep";
 const UploadModal = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -13,6 +14,7 @@ const UploadModal = () => {
   const [fileName, setFileName] = useState("");
   const fileInput = useRef(null);
   const [showPdfName, setShowPdfName] = useState(false);
+  const [multiple, setMultiple] = useState(true);
   //  getting pdfDoc when file load (step 1)
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -74,8 +76,16 @@ const UploadModal = () => {
     link.href = url;
     link.click();
   };
+  const [links, setLinks] = useState([]);
+  const [link, setLink] = useState("");
+  const handleAddLink = () => {
+    const newLinks = links;
+    newLinks.push(link);
+    setLinks(newLinks);
+    setLink("");
+  };
   return (
-    <div className="w-[550px] flex justify-center items-center bg-cyan-200 rounded-md">
+    <div className="w-[1000px] flex justify-center items-center bg-gray-200 rounded-md">
       <div className=" w-full h-[800px] flex justify-center items-center">
         <div className="w-[90%] flex justify-start items-center flex-col">
           {activeStep == 0 && (
@@ -87,7 +97,44 @@ const UploadModal = () => {
               >
                 Upload new Pdf from computer
               </button>
+              <Heading>insert pdf links ?</Heading>
+              <button
+                onClick={() => setActiveStep(0.5)}
+                className="w-full h-[60px] text-white bg-[#2994ff] m-4 rounded-md hover:bg-cyan-600"
+              >
+                Pdf Links
+              </button>
             </>
+          )}
+          {activeStep == 0.5 && (
+            <>
+              <Heading>Insert one Link or Multiple</Heading>
+              {links && links.map((link) => <p key={link}>{link}</p>)}
+              <input
+                type="text"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="link"
+                className="w-full p-2 my-4"
+              />
+              <button
+                onClick={() => handleAddLink()}
+                className="w-full h-[60px] text-white bg-[#2994ff] m-4 rounded-md hover:bg-cyan-600"
+              >
+                Add Link
+              </button>
+              <button
+                onClick={() => setActiveStep(0.6)}
+                className="w-full h-[60px] text-white bg-[#2994ff] m-4 rounded-md hover:bg-cyan-600"
+              >
+                Edit Pdfs
+              </button>
+            </>
+          )}
+          {activeStep == 0.6 && (
+            <div className="flex justify-center items-center w-full h-full flex-col">
+              <UploadModelStep urlList={links} />
+            </div>
           )}
           {activeStep == 1 && (
             <>
@@ -98,6 +145,15 @@ const UploadModal = () => {
                 Click the done button when your are finished uploading your
                 files.
               </SubHeading>
+              <div className="flex justify-center items-center gap-4 m-4">
+                <p>multi files </p>
+                <input
+                  className="w-24 bg-red-500"
+                  type="checkbox"
+                  checked={multiple}
+                  onChange={() => setMultiple(!multiple)}
+                />
+              </div>
               <Divider />
               <Container1>
                 <Wrapper className="flex justify-center items-center flex-col">
@@ -111,6 +167,7 @@ const UploadModal = () => {
                       size="50"
                     />
                     <input
+                      multiple={multiple}
                       type="file"
                       accept="application/pdf"
                       ref={fileInput}
