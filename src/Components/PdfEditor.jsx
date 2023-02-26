@@ -13,8 +13,8 @@ const PdfEditor = () => {
   const [pdfDocs, setPdfDocs] = useState([]);
   const [links, setLinks] = useState([]);
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-gray-200 rounded-md">
-      <div className=" w-full h-full flex justify-center items-center">
+    <div className="w-full h-screen flex justify-center items-center bg-gray-200 rounded-md">
+      <div className="  w-[1000px] h-full flex justify-center items-center">
         <div className="w-[90%] flex justify-start items-center flex-col">
           {activeStep == 0 && <Step0 setActiveStep={setActiveStep} />}
           {activeStep == 1 && (
@@ -31,6 +31,7 @@ const PdfEditor = () => {
               pdfDocs={pdfDocs}
               setPdfDoc={setPdfDoc}
               setActiveStep={setActiveStep}
+              fileNames={fileNames}
             />
           )}
           {activeStep == 0.1 && (

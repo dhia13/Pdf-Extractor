@@ -26,7 +26,18 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
     const newPdfDOcs = await convertToPdfDocuments(pdfFiles);
     setPdfDocs(newPdfDOcs);
   };
+  const [err, setErr] = useState(false);
   const fileInput = useRef(null);
+  const handleNext = () => {
+    if (fileNames.length === 0) {
+      setErr(true);
+      setTimeout(() => {
+        setErr(false);
+      }, 3000);
+    } else {
+      setActiveStep(2);
+    }
+  };
   return (
     <>
       <Heading>
@@ -74,12 +85,16 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
           <Paratext>Click the add button to upload your pdf file</Paratext>
         </Wrapper>
       </Container1>
+      <Divider />
       <button
         className="w-full h-[60px] text-white bg-[#5fee8a] m-4 rounded-md hover:bg-cyan-600"
-        onClick={() => setActiveStep(2)}
+        onClick={() => handleNext()}
       >
         Continue to select pages
       </button>
+      {err && (
+        <SubHeading style={{ color: "red" }}>Please select a file</SubHeading>
+      )}
     </>
   );
 };
@@ -143,11 +158,11 @@ const Paratext = styled.p`
 const TabDiv = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: start;
   white-space: nowrap;
   height: 70px;
   overflow-x: scroll;
-  width: 800px;
+  width: 100%;
   gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;

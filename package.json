@@ -19,6 +19,7 @@
     "eslint-config-next": "13.1.6",
     "next": "13.1.6",
     "pdf-lib": "^1.17.1",
+    "pdfjs": "^2.4.7",
     "pdfjs-dist": "^3.3.122",
     "react": "18.2.0",
     "react-dom": "18.2.0",

@@ -14,18 +14,30 @@ const Step02 = ({ urlList, urList, setActiveStep, setPdfDoc }) => {
   // get pdf files and set them to document
   const handleGetFile = async (url) => {
     try {
-      const res = await axios.put(
-        "http://localhost:8000",
-        { url: url },
-        {
+      const proxyUrl = "https://thingproxy.freeboard.io/fetch/";
+      await axios
+        .get(proxyUrl + url, {
           responseType: "arraybuffer", // set the response type to arraybuffer
-        }
-      );
-      const uint8Array = new Uint8Array(res.data);
-      const pdfDoc = await PDFDocument.load(uint8Array);
-      let pdfFiles = pdfDocs;
-      pdfDocs.push(pdfDoc);
-      setPdfDocs(pdfFiles);
+        })
+        .then((response) => {
+          const loadPdf = async () => {
+            console.log(response.data);
+            const uint8Array = new Uint8Array(response.data);
+            console.log(uint8Array);
+            const pdfDoc = await PDFDocument.load(response.data);
+            console.log(pdfDoc);
+          };
+          loadPdf();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      // const pdfBytes = await response.arrayBuffer();
+      // const pdfDoc = await PDFDocument.load(response.data);
+      // let pdfFiles = pdfDocs;
+      // pdfDocs.push(pdfDoc);
+      // setPdfDocs(pdfFiles);
     } catch (err) {
       console.log(err);
     }
@@ -151,7 +163,6 @@ const Step02 = ({ urlList, urList, setActiveStep, setPdfDoc }) => {
       // const finalPdf = await PDFDocument.load(newBlob);
     }
   };
-  console.log(pdfDocs);
   return (
     <>
       <Heading>
