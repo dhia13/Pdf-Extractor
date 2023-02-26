@@ -26,16 +26,39 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
     const newPdfDOcs = await convertToPdfDocuments(pdfFiles);
     setPdfDocs(newPdfDOcs);
   };
+  const [err, setErr] = useState(false);
   const fileInput = useRef(null);
+  const handleNext = () => {
+    if (fileNames.length === 0) {
+      setErr(true);
+      setTimeout(() => {
+        setErr(false);
+      }, 3000);
+    } else {
+      setActiveStep(2);
+    }
+  };
   return (
     <>
-      <Heading>
-        Let’s get started! Upload your plans to begin assigning tasks
-      </Heading>
+      <div className="flex justify-center items-center gap-4">
+        <img
+          src="/images/back.png"
+          alt="back"
+          width="32px"
+          height="32px"
+          onClick={() => {
+            setPdfDocs([]), setFileNames([]), setActiveStep(0);
+          }}
+          className="cursor-pointer"
+        />
+        <Heading>
+          Let’s get started! Upload your Pdfs to begin modifying them
+        </Heading>
+      </div>
       <SubHeading>
         Click the done button when your are finished uploading your files.
       </SubHeading>
-      <div className="flex justify-center items-center m-4">
+      <div className="flex justify-center items-center">
         <SubHeading>Multiple files </SubHeading>
         <input
           className="w-24 bg-red-500"
@@ -71,15 +94,19 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
               style={{ display: "none" }}
             />
           </UploadBtn>
-          <Paratext>Click the add button to upload your pdf file</Paratext>
+          <Paratext>Click the add button to upload your pdf files</Paratext>
         </Wrapper>
       </Container1>
+      <Divider />
       <button
         className="w-full h-[60px] text-white bg-[#5fee8a] m-4 rounded-md hover:bg-cyan-600"
-        onClick={() => setActiveStep(2)}
+        onClick={() => handleNext()}
       >
         Continue to select pages
       </button>
+      {err && (
+        <SubHeading style={{ color: "red" }}>Please select a file</SubHeading>
+      )}
     </>
   );
 };
@@ -143,11 +170,11 @@ const Paratext = styled.p`
 const TabDiv = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: start;
   white-space: nowrap;
   height: 70px;
   overflow-x: scroll;
-  width: 800px;
+  width: 100%;
   gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;

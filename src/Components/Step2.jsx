@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { PDFDocument, PDFPage } from "pdf-lib";
-const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
+import { PDFDocument } from "pdf-lib";
+const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
   const [selectedPages, setSelectedPages] = useState([]);
   const [extracted, setExtracted] = useState(false);
   const [pages, setPages] = useState([]);
@@ -34,7 +33,7 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
         pdfDocs.map((pdfDoc, i) => {
           let SoloPages = pdfDoc.getPages().map((page, index) => ({
             index: index + 1,
-            name: `file ${index + 1} --> page ${index + 1}`,
+            name: `${fileNames[i]}--> page ${index + 1}`,
             selected: false,
           }));
           let newPages = pages;
@@ -45,7 +44,6 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
       };
       extractPages();
     }
-    // setSelectedPdf([names[0]]);
     setSelectedDoc(0);
     return () => {
       setExtracted(false);
@@ -100,31 +98,44 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
   // file extraction and comb
   const handleExtractAndCombine = async () => {
     const extractedPdfDoc = await PDFDocument.create();
-    for (let pd = 0; pd < pdfDocs.length; pd++) {
-      for (let pdp = 0; pdp < pdfDocs[pd].getPageCount() + 1; pdp++) {
-        for (let sp = 0; sp < selectedPages.length; sp++) {
-          for (let p = 0; p < selectedPages[sp].pages.length; p++) {
-            if (
-              pd === selectedPages[sp].file &&
-              pdp === selectedPages[sp].pages[p]
-            ) {
-              const page = await extractedPdfDoc.copyPages(pdfDocs[pd], [pdp]);
-              extractedPdfDoc.addPage(page[0]);
-            }
-          }
+    pdfDocs.forEach((doc, i) => {
+      selectedPages.forEach((selectedObj) => {
+        if (selectedObj.file === i) {
+          selectedObj.pages.forEach((page) => {
+            console.log(doc, page);
+            const copyPage = async () => {
+              const copiedPage = await extractedPdfDoc.copyPages(doc, [
+                page - 1,
+              ]);
+              extractedPdfDoc.addPage(copiedPage[0]);
+            };
+            copyPage();
+          });
         }
-      }
-      const newBlob = await extractedPdfDoc.save();
-      console.log(newBlob);
-      const file = new File([newBlob], "testssPdf.pdf", {
-        type: "application/pdf",
       });
-      const pdfDocument = await PDFDocument.load(newBlob);
-
-      setPdfDoc(pdfDocument);
-      setActiveStep(3);
+    });
+    await extractedPdfDoc.save();
+    extractedPdfDoc.removePage(0);
+    await extractedPdfDoc.save();
+    setPdfDoc(extractedPdfDoc);
+    setActiveStep(3);
+  };
+  const [err, setErr] = useState(false);
+  const handleNext = () => {
+    if (selectedPages.length === 0) {
+      setErr(true);
+      setTimeout(() => {
+        setErr(false);
+      }, 3000);
+    } else {
+      handleExtractAndCombine();
     }
   };
+  console.log(selectedPdf);
+  useEffect(() => {
+    setSelectedPdf(fileNames[0]);
+    setSelectedDoc(0);
+  }, []);
   return (
     <>
       <Heading>
@@ -137,22 +148,22 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
       </SubHeading>
       {/* render pages */}
       <TabDiv>
-        {files.map((name, index) => (
+        {fileNames.map((name, index) => (
           <TabOptions
             style={{
-              backgroundColor: name === selectedPdf[0] && "#2994ff",
-              color: name === selectedPdf[0] && "white",
+              backgroundColor: name === selectedPdf && "#2994ff",
+              color: name === selectedPdf && "white",
             }}
             key={index}
             onClick={() => {
-              setSelectedDoc(index), setSelectedPdf([name]);
+              setSelectedDoc(index), setSelectedPdf(name);
             }}
           >
             {name}
           </TabOptions>
         ))}
       </TabDiv>
-      <div className="flex w-full h-[400px] overflow-y-scroll relative">
+      <div className="flex w-full h-[400px] relative">
         {extracted &&
           pages.map((el, i) => (
             <PagesDiv
@@ -191,9 +202,12 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
             </PagesDiv>
           ))}
       </div>
-      <ContinueBtn onClick={handleExtractAndCombine}>
-        extract and combine
-      </ContinueBtn>
+      <ContinueBtn onClick={handleNext}>Extract Pages</ContinueBtn>
+      {err && (
+        <SubHeading style={{ color: "red" }}>
+          Please select pages you would like to extract
+        </SubHeading>
+      )}
     </>
   );
 };
@@ -248,14 +262,11 @@ const TabOptions = styled.button`
   flex: 0 0 auto;
   background-color: white;
   overflow: hidden;
-  padding: 0 10px 0;
-  margin-left: 30px;
   border-radius: 20px;
   cursor: pointer;
   color: gray;
-  margin-bottom: 50px;
-  width: 200px;
   height: 35px;
+  padding: 0 10px 0 10px;
   white-space: nowrap;
   font-weight: bold;
   :focus,
@@ -266,11 +277,13 @@ const TabOptions = styled.button`
 const TabDiv = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: start;
+  align-items: center;
   white-space: nowrap;
   height: 70px;
-  margin-top: 10px;
-
+  overflow-x: scroll;
+  width: 100%;
+  gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;
     background-color: #f5f5f5;
@@ -281,7 +294,7 @@ const TabDiv = styled.div`
   }
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background-color: #2994ff;
+    background-color: #5fee8a;
   }
 `;
 const PagesDiv = styled.div`
@@ -304,8 +317,4 @@ const PagesDiv = styled.div`
     border-radius: 10px;
     background-color: #2994ff;
   }
-`;
-const BleuText = styled.span`
-  color: #2491ff;
-  display: inline-block;
 `;
