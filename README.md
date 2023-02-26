@@ -28,4 +28,4 @@ yarn dev
 Live Demo
 ## Deployed on Vercel
 
-https://pdfmanipulatoor-8918543xl-dhia13.vercel.app/
+https://pdfmanipulatoor.vercel.app/
