@@ -2,39 +2,19 @@ import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { PDFDocument, PDFPage } from "pdf-lib";
-const UploadModelStep = ({ urlList }) => {
+const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
   const [selectedPages, setSelectedPages] = useState([]);
-  const [pdfDocs, setPdfDocs] = useState([]);
   const [extracted, setExtracted] = useState(false);
   const [pages, setPages] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(0);
   const [selectedPdf, setSelectedPdf] = useState("");
   const [files, setFiles] = useState([]);
   // get pdf files and set them to document
-  const handleGetFile = async (url) => {
-    try {
-      const res = await axios.put(
-        "http://localhost:8000",
-        { url: url },
-        {
-          responseType: "arraybuffer", // set the response type to arraybuffer
-        }
-      );
-      const uint8Array = new Uint8Array(res.data);
-      const pdfDoc = await PDFDocument.load(uint8Array);
-      let pdfFiles = pdfDocs;
-      pdfDocs.push(pdfDoc);
-      setPdfDocs(pdfFiles);
-    } catch (err) {
-      console.log(err);
-    }
-  };
   // get all pdf and set loaded(true)
   useEffect(() => {
     const getAllPdfs = async () => {
-      for (let i = 0; i < urlList.length; i++) {
-        await handleGetFile(urlList[i]);
+      for (let i = 0; i < pdfDocs.length; i++) {
         const newfiles = files;
         newfiles.push(`file ${i}`);
         setFiles(newfiles);
@@ -45,7 +25,7 @@ const UploadModelStep = ({ urlList }) => {
     return () => {
       setLoaded(false);
     };
-  }, [urlList]);
+  }, [pdfDocs]);
   // set the selected pdf to the first item in the names array
   // get pages from pdf
   useEffect(() => {
@@ -117,7 +97,6 @@ const UploadModelStep = ({ urlList }) => {
       }
     }
   };
-  const [pdfDoc, setPdfDoc] = useState();
   // file extraction and comb
   const handleExtractAndCombine = async () => {
     const extractedPdfDoc = await PDFDocument.create();
@@ -140,17 +119,12 @@ const UploadModelStep = ({ urlList }) => {
       const file = new File([newBlob], "testssPdf.pdf", {
         type: "application/pdf",
       });
-      setPdfDoc(file);
-      // const url = URL.createObjectURL(file);
-      // const link = document.createElement("a");
-      // link.download = "newPdf.pdf";
-      // link.href = url;
-      // link.click();
-      // console.log(extractedPdfDoc);
-      // const finalPdf = await PDFDocument.load(newBlob);
+      const pdfDocument = await PDFDocument.load(newBlob);
+
+      setPdfDoc(pdfDocument);
+      setActiveStep(3);
     }
   };
-  console.log(pdfDoc);
   return (
     <>
       <Heading>
@@ -232,7 +206,7 @@ const UploadModelStep = ({ urlList }) => {
     </>
   );
 };
-export default UploadModelStep;
+export default Step2;
 
 const Heading = styled.h1`
   font-family: Roboto;
