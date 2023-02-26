@@ -11,7 +11,6 @@ screen shots
 
 this project was made using next pdf-lib tailwind styled components
 Comming soon
-extracting pages from multiple pdf and merging them 
 view and edit and draw on a pdf 
 create new pages adding text images to them then merging them with another 
 ## Getting Started
@@ -28,4 +27,4 @@ yarn dev
 Live Demo
 ## Deployed on Vercel
 
-https://pdfmanipulatoor.vercel.app/
+https://pdf-editor-fawn.vercel.app/
