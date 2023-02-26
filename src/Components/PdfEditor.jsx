@@ -50,7 +50,12 @@ const PdfEditor = () => {
             </div>
           )}
           {activeStep == 3 && (
-            <Step3 setActiveStep={setActiveStep} pdfDoc={pdfDoc} />
+            <Step3
+              setActiveStep={setActiveStep}
+              pdfDoc={pdfDoc}
+              setPdfDocs={setPdfDocs}
+              setFileNames={setFileNames}
+            />
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Step3 = ({ setActiveStep, pdfDoc }) => {
+const Step3 = ({ setActiveStep, pdfDoc, setPdfDocs, setFileNames }) => {
   const handleDownload = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
@@ -20,7 +20,9 @@ const Step3 = ({ setActiveStep, pdfDoc }) => {
           alt="back"
           width="32px"
           height="32px"
-          onClick={() => setActiveStep(0)}
+          onClick={() => {
+            setPdfDocs([]), setFileNames([]), setActiveStep(0);
+          }}
           className="cursor-pointer"
         />
         <Heading>Let’s go! Download your new Pdf File</Heading>
