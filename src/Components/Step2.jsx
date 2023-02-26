@@ -168,15 +168,6 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep }) => {
                 }}
               >
                 <PdfTitle>{el.name}</PdfTitle>
-                <PdfTitle>
-                  Total:
-                  <BleuText>N/A</BleuText>
-                </PdfTitle>
-                <BleuText
-                  style={{ fontWeight: "BOLD", textDecoration: "underline" }}
-                >
-                  Select All
-                </BleuText>
                 {el.map(({ index, name, selected }) => (
                   <div key={index}>
                     <li
@@ -224,7 +215,7 @@ const SubHeading = styled.h1`
   color: #707070;
 `;
 const ContinueBtn = styled.button`
-  background: #2994ff;
+  background: #5fee8a;
   border: 1px solid #2994ff;
   padding: 8px 120px;
   border-radius: 5px;

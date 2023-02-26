@@ -195,15 +195,6 @@ const Step02 = ({ urlList, urList, setActiveStep, setPdfDoc }) => {
                 }}
               >
                 <PdfTitle>{el.name}</PdfTitle>
-                <PdfTitle>
-                  Total:
-                  <BleuText>N/A</BleuText>
-                </PdfTitle>
-                <BleuText
-                  style={{ fontWeight: "BOLD", textDecoration: "underline" }}
-                >
-                  Select All
-                </BleuText>
                 {el.map(({ index, name, selected }) => (
                   <div key={index}>
                     <li
