@@ -40,13 +40,25 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
   };
   return (
     <>
-      <Heading>
-        Let’s get started! Upload your plans to begin assigning tasks
-      </Heading>
+      <div className="flex justify-center items-center gap-4">
+        <img
+          src="/images/back.png"
+          alt="back"
+          width="32px"
+          height="32px"
+          onClick={() => {
+            setPdfDocs([]), setFileNames([]), setActiveStep(0);
+          }}
+          className="cursor-pointer"
+        />
+        <Heading>
+          Let’s get started! Upload your Pdfs to begin modifying them
+        </Heading>
+      </div>
       <SubHeading>
         Click the done button when your are finished uploading your files.
       </SubHeading>
-      <div className="flex justify-center items-center m-4">
+      <div className="flex justify-center items-center">
         <SubHeading>Multiple files </SubHeading>
         <input
           className="w-24 bg-red-500"
@@ -82,7 +94,7 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
               style={{ display: "none" }}
             />
           </UploadBtn>
-          <Paratext>Click the add button to upload your pdf file</Paratext>
+          <Paratext>Click the add button to upload your pdf files</Paratext>
         </Wrapper>
       </Container1>
       <Divider />
