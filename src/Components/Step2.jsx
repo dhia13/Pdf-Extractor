@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import Image from "next/image";
 const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
   const [selectedPages, setSelectedPages] = useState([]);
   const [extracted, setExtracted] = useState(false);
@@ -102,7 +103,6 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
       selectedPages.forEach((selectedObj) => {
         if (selectedObj.file === i) {
           selectedObj.pages.forEach((page) => {
-            console.log(doc, page);
             const copyPage = async () => {
               const copiedPage = await extractedPdfDoc.copyPages(doc, [
                 page - 1,
@@ -131,7 +131,6 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
       handleExtractAndCombine();
     }
   };
-  console.log(selectedPdf);
   useEffect(() => {
     setSelectedPdf(fileNames[0]);
     setSelectedDoc(0);
@@ -181,19 +180,15 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
                 <PdfTitle>{el.name}</PdfTitle>
                 {el.map(({ index, name, selected }) => (
                   <div key={index}>
-                    <li
-                      style={{
-                        fontWeight: "500",
-                        margin: "5px",
-                        fontSize: "13px",
-                      }}
-                    >
+                    <li className="flex justify-between items-start font-medium m-1 ">
                       {name}
-                      <StyledCheckbox
-                        type="checkbox"
-                        //   checked={selectedPages[i].pages.includes(index)}
-                        onChange={() => handlePageSelection(i, index)}
-                      />
+                      <div className="flex justify-center gap-2 items-center border border-red-200">
+                        <StyledCheckbox
+                          type="checkbox"
+                          //   checked={selectedPages[i].pages.includes(index)}
+                          onChange={() => handlePageSelection(i, index)}
+                        />
+                      </div>
                     </li>
                     <Divider2 />
                   </div>

@@ -1,6 +1,14 @@
 import styled from "styled-components";
 
-const Step3 = ({ setActiveStep, pdfDoc, setPdfDocs, setFileNames }) => {
+const Step3 = ({
+  setActiveStep,
+  pdfDoc,
+  setPdfDocs,
+  setFileNames,
+  setSketchInfo,
+}) => {
+  console.log(pdfDoc.getPage(1));
+
   const handleDownload = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
@@ -11,6 +19,26 @@ const Step3 = ({ setActiveStep, pdfDoc, setPdfDocs, setFileNames }) => {
     link.download = "kizaruEdit.pdf";
     link.href = url;
     link.click();
+  };
+  const handleDraw = () => {
+    let pages = new Array(pdfDoc.pageCount);
+    pages.fill({ page: 0, edited: false, sketches: [] });
+    pages = pages.map((page, index) => {
+      return {
+        page: index + 1,
+        edited: page.edited,
+        sketches: page.sketches,
+        preview: false,
+      };
+    });
+    setSketchInfo({
+      pdfFile: pdfDoc,
+      edited: false,
+      selectedPage: 0,
+      totalPages: pdfDoc.pageCount,
+      pages: pages,
+    });
+    setActiveStep(4);
   };
   return (
     <>
@@ -33,6 +61,13 @@ const Step3 = ({ setActiveStep, pdfDoc, setPdfDocs, setFileNames }) => {
         }}
       >
         Download File
+      </ContinueBtn>
+      <ContinueBtn
+        onClick={() => {
+          handleDraw();
+        }}
+      >
+        Draw On pdf
       </ContinueBtn>
     </>
   );
