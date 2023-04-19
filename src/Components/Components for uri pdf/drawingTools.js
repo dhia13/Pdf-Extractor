@@ -1,10 +1,66 @@
 export function drawRect(canvas, scale, x, y, width, height, color, stroke) {
   const ctx = canvas.getContext("2d");
   ctx.beginPath();
-  ctx.rect(x * scale, y * scale, width * scale, height * scale);
   ctx.strokeStyle = color;
   ctx.lineWidth = stroke * scale;
+  ctx.rect(x * scale, y * scale, width * scale, height * scale);
   ctx.stroke();
+  ctx.closePath();
+}
+export function drawSplitedRect(
+  canvas,
+  scale,
+  x,
+  y,
+  w,
+  h,
+  color,
+  stroke,
+  splitPoint
+) {
+  if (w > h) {
+    const ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.lineWidth = stroke * scale;
+    ctx.rect(x * scale, y * scale, splitPoint.x - x * scale, h * scale);
+    ctx.fillStyle = "rgba(144, 238, 144, 0.7)"; // light green
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.rect(
+      splitPoint.x,
+      y * scale,
+      w * scale - (splitPoint.x - x * scale),
+      h * scale
+    );
+    ctx.fillStyle = "rgba(255, 192, 203, 0.7)"; // light red
+    ctx.fill();
+    ctx.closePath();
+
+    drawCircle(canvas, scale, splitPoint.x, y + h / 2, 14, "blue", 2);
+  }
+  if (h > w) {
+    const ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.lineWidth = stroke * scale;
+    ctx.rect(x * scale, y * scale, w * scale, splitPoint.y - y * scale);
+    ctx.fillStyle = "rgba(144, 238, 144, 0.7)"; // light green
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.rect(
+      x * scale,
+      splitPoint.y,
+      w * scale,
+      h * scale - (splitPoint.y - y * scale)
+    );
+    ctx.fillStyle = "rgba(255, 192, 203, 0.7)"; // light red
+    ctx.fill();
+    ctx.closePath();
+    drawCircle(canvas, scale, x + w / 2, splitPoint.y, 14, "blue", 2);
+  }
 }
 export function drawCircle(canvas, scale, x, y, r, color, stroke) {
   const ctx = canvas.getContext("2d");
@@ -13,6 +69,7 @@ export function drawCircle(canvas, scale, x, y, r, color, stroke) {
   ctx.strokeStyle = color;
   ctx.lineWidth = stroke * scale;
   ctx.stroke();
+  ctx.closePath();
 }
 export function drawLine(canvas, scale, x, y, xb, yb, color, stroke) {
   const ctx = canvas.getContext("2d");
@@ -22,6 +79,7 @@ export function drawLine(canvas, scale, x, y, xb, yb, color, stroke) {
   ctx.strokeStyle = color;
   ctx.lineWidth = stroke * scale;
   ctx.stroke();
+  ctx.closePath();
 }
 export function drawPainting(canvas, scale, coordinations, color, stroke) {
   const ctx = canvas.getContext("2d");
@@ -36,19 +94,34 @@ export function drawPainting(canvas, scale, coordinations, color, stroke) {
   ctx.closePath();
 }
 export function drawShapes(canvas, scale, shapes) {
+  const ctx = canvas.getContext("2d");
   if (shapes.length > 0) {
     shapes.forEach((shape) => {
       if (shape.shape === "rect") {
-        drawRect(
-          canvas,
-          scale,
-          shape.x,
-          shape.y,
-          shape.w,
-          shape.h,
-          shape.color,
-          shape.stroke
-        );
+        if (shape.splited == true) {
+          drawSplitedRect(
+            canvas,
+            scale,
+            shape.x,
+            shape.y,
+            shape.w,
+            shape.h,
+            shape.color,
+            shape.stroke,
+            shape.splitPoint
+          );
+        } else {
+          drawRect(
+            canvas,
+            scale,
+            shape.x,
+            shape.y,
+            shape.w,
+            shape.h,
+            shape.color,
+            shape.stroke
+          );
+        }
       }
       if (shape.shape === "circle") {
         drawCircle(
@@ -82,58 +155,99 @@ export function drawShapes(canvas, scale, shapes) {
           shape.stroke
         );
       }
+      ctx.closePath();
     });
   }
 }
-// export function drawRoundedRect(
-//   canvas,
-//   scale,
-//   x,
-//   y,
-//   width,
-//   height,
-//   radius,
-//   color,
-//   stroke
-// ) {
-//   const ctx = canvas.getContext("2d");
-//   const cornerRadius = radius * scale;
-//   const xScaled = x * scale;
-//   const yScaled = y * scale;
-//   const widthScaled = width * scale;
-//   const heightScaled = height * scale;
-//   const xRightScaled = (x + width) * scale;
-//   const yBottomScaled = (y + height) * scale;
-//   const xLeftScaled = xScaled + cornerRadius;
-//   const xRightCornerScaled = xRightScaled - cornerRadius;
-//   const yTopScaled = yScaled + cornerRadius;
-//   const yBottomCornerScaled = yBottomScaled - cornerRadius;
+export function detectShapes(canvas, scale, shapes, Mx, My) {
+  let hoveredBorders = [];
+  let hoveredShapes = [];
+  let hoveringBorder = false;
+  let hoveringInner = false;
+  let splitedRectInnerCircle = false;
+  shapes.forEach((Shape) => {
+    let mouseX = Mx;
+    let mouseY = My;
+    if (Shape.shape == "rect") {
+      let { splitPoint, h, w, x, y, stroke, index, splited } = Shape;
+      // detect border
+      if (
+        // right border
+        (mouseX >= x - (stroke * scale) / 2 &&
+          mouseX <= x + (stroke * scale) / 2 &&
+          mouseY >= y - (stroke * scale) / 2 &&
+          mouseY <= y + h * scale + (stroke * scale) / 2) ||
+        // left border
+        (mouseX >= x - (stroke * scale) / 2 + w * scale &&
+          mouseX <= x + (stroke * scale) / 2 + w * scale &&
+          mouseY >= y - (stroke * scale) / 2 &&
+          mouseY <= y + h * scale + (stroke * scale) / 2) ||
+        // top border
+        (mouseY >= y - (stroke * scale) / 2 &&
+          mouseY <= y + (stroke * scale) / 2 &&
+          mouseX >= x - (stroke * scale) / 2 &&
+          mouseX <= x + w * scale + (stroke * scale) / 2) ||
+        // bottom border
+        (mouseY >= y - (stroke * scale) / 2 + h * scale &&
+          mouseY <= y + (stroke * scale) / 2 + h * scale &&
+          mouseX >= x - (stroke * scale) / 2 &&
+          mouseX <= x + w * scale + (stroke * scale) / 2)
+      ) {
+        hoveredBorders.push(index);
+        Shape.borderHovered = true;
+      }
+      // detect inner shape
+      if (
+        mouseX >= x + (stroke * scale) / 2 &&
+        mouseX <= x - (stroke * scale) / 2 + w * scale &&
+        mouseY >= y + (stroke * scale) / 2 &&
+        mouseY <= y - (stroke * scale) / 2 + h * scale
+      ) {
+        hoveredShapes.push(index);
+        Shape.innerHovered = true;
+      }
+      if (splited) {
+        if (w > h) {
+          splitedRectInnerCircle = isMouseInCircle(
+            splitPoint.x,
+            y + h / 2,
+            14,
+            mouseX,
+            mouseY
+          );
+        }
+        if (h > w) {
+        }
+      }
+    }
+    if (Shape.shape == "circle") {
+    }
+    if (Shape.shape == "line") {
+    }
+  });
+  if (hoveredBorders.length > 0) {
+    hoveringBorder = true;
+  }
+  if (hoveredShapes.length > 0) {
+    hoveringInner = true;
+  }
+  return {
+    shapes,
+    hoveredBorders,
+    hoveredShapes,
+    hoveringBorder,
+    hoveringInner,
+    splitedRectInnerCircle,
+  };
+}
+function isMouseInCircle(circleX, circleY, radius, mouseX, mouseY) {
+  // Calculate the distance between the mouse and the center of the circle
+  const distance = Math.sqrt((mouseX - circleX) ** 2 + (mouseY - circleY) ** 2);
 
-//   ctx.beginPath();
-//   ctx.moveTo(xLeftScaled, yScaled);
-//   ctx.lineTo(xRightCornerScaled, yScaled);
-//   ctx.arc(xRightCornerScaled, yTopScaled, cornerRadius, Math.PI * 1.5, 0);
-//   ctx.lineTo(xRightScaled, yBottomCornerScaled);
-//   ctx.arc(
-//     xRightCornerScaled,
-//     yBottomCornerScaled,
-//     cornerRadius,
-//     0,
-//     Math.PI * 0.5
-//   );
-//   ctx.lineTo(xLeftScaled, yBottomScaled);
-//   ctx.arc(
-//     xLeftScaled,
-//     yBottomCornerScaled,
-//     cornerRadius,
-//     Math.PI * 0.5,
-//     Math.PI
-//   );
-//   ctx.lineTo(xScaled, yTopScaled);
-//   ctx.arc(xLeftScaled, yTopScaled, cornerRadius, Math.PI, Math.PI * 1.5);
-//   ctx.closePath();
-
-//   ctx.strokeStyle = color;
-//   ctx.lineWidth = stroke * scale;
-//   ctx.stroke();
-// }
+  // Check if the distance is less than the radius of the circle
+  if (distance <= radius) {
+    return true;
+  } else {
+    return false;
+  }
+}
