@@ -22,14 +22,13 @@ export function drawSplitedRect(
     const ctx = canvas.getContext("2d");
     ctx.beginPath();
     ctx.lineWidth = stroke * scale;
-    ctx.rect(x * scale, y * scale, splitPoint.x - x * scale, h * scale);
+    ctx.rect(x * scale, y * scale, splitPoint.x * scale - x * scale, h * scale);
     ctx.fillStyle = "rgba(144, 238, 144, 0.7)"; // light green
     ctx.fill();
     ctx.closePath();
-
     ctx.beginPath();
     ctx.rect(
-      splitPoint.x,
+      splitPoint.x * scale,
       y * scale,
       w * scale - (splitPoint.x - x * scale),
       h * scale
@@ -37,7 +36,6 @@ export function drawSplitedRect(
     ctx.fillStyle = "rgba(255, 192, 203, 0.7)"; // light red
     ctx.fill();
     ctx.closePath();
-
     drawCircle(canvas, scale, splitPoint.x, y + h / 2, 14, "blue", 2);
   }
   if (h > w) {
@@ -48,11 +46,10 @@ export function drawSplitedRect(
     ctx.fillStyle = "rgba(144, 238, 144, 0.7)"; // light green
     ctx.fill();
     ctx.closePath();
-
     ctx.beginPath();
     ctx.rect(
       x * scale,
-      splitPoint.y,
+      splitPoint.y * scale,
       w * scale,
       h * scale - (splitPoint.y - y * scale)
     );
@@ -165,58 +162,65 @@ export function detectShapes(canvas, scale, shapes, Mx, My) {
   let hoveringBorder = false;
   let hoveringInner = false;
   let splitedRectInnerCircle = false;
-  shapes.forEach((Shape) => {
+  shapes.forEach((Shape, i) => {
     let mouseX = Mx;
     let mouseY = My;
     if (Shape.shape == "rect") {
-      let { splitPoint, h, w, x, y, stroke, index, splited } = Shape;
+      let { splitPoint, h, w, x, y, stroke, splited } = Shape;
       // detect border
       if (
         // right border
-        (mouseX >= x - (stroke * scale) / 2 &&
-          mouseX <= x + (stroke * scale) / 2 &&
-          mouseY >= y - (stroke * scale) / 2 &&
-          mouseY <= y + h * scale + (stroke * scale) / 2) ||
+        (mouseX >= x * scale - (stroke * scale) / 2 &&
+          mouseX <= x * scale + (stroke * scale) / 2 &&
+          mouseY >= y * scale - (stroke * scale) / 2 &&
+          mouseY <= (y + h) * scale + (stroke * scale) / 2) ||
         // left border
-        (mouseX >= x - (stroke * scale) / 2 + w * scale &&
-          mouseX <= x + (stroke * scale) / 2 + w * scale &&
-          mouseY >= y - (stroke * scale) / 2 &&
-          mouseY <= y + h * scale + (stroke * scale) / 2) ||
+        (mouseX >= x * scale - (stroke * scale) / 2 + w * scale &&
+          mouseX <= x * scale + (stroke * scale) / 2 + w * scale &&
+          mouseY >= y * scale - (stroke * scale) / 2 &&
+          mouseY <= (y + h) * scale + (stroke * scale) / 2) ||
         // top border
-        (mouseY >= y - (stroke * scale) / 2 &&
-          mouseY <= y + (stroke * scale) / 2 &&
-          mouseX >= x - (stroke * scale) / 2 &&
-          mouseX <= x + w * scale + (stroke * scale) / 2) ||
+        (mouseY >= y * scale - (stroke * scale) / 2 &&
+          mouseY <= y * scale + (stroke * scale) / 2 &&
+          mouseX >= x * scale - (stroke * scale) / 2 &&
+          mouseX <= (x + w) * scale + (stroke * scale) / 2) ||
         // bottom border
-        (mouseY >= y - (stroke * scale) / 2 + h * scale &&
-          mouseY <= y + (stroke * scale) / 2 + h * scale &&
-          mouseX >= x - (stroke * scale) / 2 &&
-          mouseX <= x + w * scale + (stroke * scale) / 2)
+        (mouseY >= y * scale - (stroke * scale) / 2 + h * scale &&
+          mouseY <= y * scale + (stroke * scale) / 2 + h * scale &&
+          mouseX >= x * scale - (stroke * scale) / 2 &&
+          mouseX <= (x + w) * scale + (stroke * scale) / 2)
       ) {
-        hoveredBorders.push(index);
+        hoveredBorders.push(i);
         Shape.borderHovered = true;
       }
       // detect inner shape
       if (
-        mouseX >= x + (stroke * scale) / 2 &&
-        mouseX <= x - (stroke * scale) / 2 + w * scale &&
-        mouseY >= y + (stroke * scale) / 2 &&
-        mouseY <= y - (stroke * scale) / 2 + h * scale
+        mouseX >= x * scale + (stroke * scale) / 2 &&
+        mouseX <= x * scale - (stroke * scale) / 2 + w * scale &&
+        mouseY >= y * scale + (stroke * scale) / 2 &&
+        mouseY <= y * scale - (stroke * scale) / 2 + h * scale
       ) {
-        hoveredShapes.push(index);
+        hoveredShapes.push(i);
         Shape.innerHovered = true;
       }
       if (splited) {
         if (w > h) {
           splitedRectInnerCircle = isMouseInCircle(
-            splitPoint.x,
-            y + h / 2,
+            splitPoint.x * scale,
+            (y + h / 2) * scale,
             14,
             mouseX,
             mouseY
           );
         }
         if (h > w) {
+          splitedRectInnerCircle = isMouseInCircle(
+            x + (w / 2) * scale,
+            splitPoint.y * scale,
+            14,
+            mouseX,
+            mouseY
+          );
         }
       }
     }

@@ -5,9 +5,10 @@ import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
 import Step5 from "./Step5";
+import Step7 from "./Step7";
 import Test from "./Test";
 const PdfEditor = () => {
-  const [activeStep, setActiveStep] = useState(5);
+  const [activeStep, setActiveStep] = useState(7);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [fileNames, setFileNames] = useState([]);
   const [pdfDocs, setPdfDocs] = useState([]);
@@ -77,6 +78,13 @@ const PdfEditor = () => {
           )}
           {activeStep == 6 && (
             <Test
+              setSketchInfo={setSketchInfo}
+              sketchInfo={sketchInfo}
+              pdfDoc={pdfDoc}
+            />
+          )}
+          {activeStep == 7 && (
+            <Step7
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}

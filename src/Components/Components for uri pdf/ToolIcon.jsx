@@ -10,6 +10,7 @@ const ToolIcon = ({ tool, drawTool, setDrawTool, disable }) => {
      : "bg-white cursor-pointer"
  }`}
       onClick={() => (disable ? "" : setDrawTool(tool))}
+      title={tool} // added title attribute to display tooltip
     >
       <img width={32} height={32} src={`/images/${tool}.png`} alt={tool} />
     </div>
