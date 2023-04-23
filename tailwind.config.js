@@ -25,6 +25,7 @@ module.exports = {
       cursor: {
         delete: "url(/images/delete.png), pointer",
         erace: "url(/images/erace.png), pointer",
+        fill: "url(/images/fill.png), pointer",
       },
     },
   },

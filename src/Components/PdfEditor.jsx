@@ -4,11 +4,11 @@ import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
-import Step5 from "./Step5";
-import Step7 from "./Step7";
-import Test from "./Test";
+import Backup from "./Backup"; //active step 10
+import SplitPain from "./Components for uri pdf/SplitPaint"; // active step 11
+import Paint from "./Paint"; // active step 5
 const PdfEditor = () => {
-  const [activeStep, setActiveStep] = useState(7);
+  const [activeStep, setActiveStep] = useState(5);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [fileNames, setFileNames] = useState([]);
   const [pdfDocs, setPdfDocs] = useState([]);
@@ -70,21 +70,21 @@ const PdfEditor = () => {
           )}
           {/* draw canvas */}
           {activeStep == 5 && (
-            <Step5
+            <Paint
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}
             />
           )}
-          {activeStep == 6 && (
-            <Test
+          {activeStep == 11 && (
+            <SplitPain
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}
             />
           )}
-          {activeStep == 7 && (
-            <Step7
+          {activeStep == 10 && (
+            <Backup
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}

@@ -1,24 +1,36 @@
 import { useEffect, useRef, useState } from "react";
-import ToolIcon from "./Components for uri pdf/ToolIcon";
+import ToolIcon from "./ToolIcon";
 import {
   drawRect,
   drawCircle,
   drawShapes,
   drawLine,
   detectShapes,
-} from "./Components for uri pdf/drawingTools";
+} from "./drawingTools";
 import { SketchPicker } from "react-color";
-
-export default function Step6() {
+// this component contain fully function paint component
+// that loads pdf page and create a canvas on top of it
+// u can draw (rect,circles,line)
+// u can change (scale,stroke,opacity)
+// u can split rect into two parts to show progress on architecture plans
+// to do
+// add opacity to drawing
+// fix shapes not showing when changing scale
+// select where progress starts when selecting split point
+export default function SplitPaint() {
   const pdfRef = useRef(null);
   const canvasRef = useRef(null);
+  const noneEditableCanvasRef = useRef(null);
   const [canvas, setCanvas] = useState(canvasRef.current);
+  const [noneEditableCanvas, setNoneEditableCanvasRef] = useState(
+    noneEditableCanvasRef.current
+  );
   const [PW, setPW] = useState(0);
   const [PH, setPh] = useState(0);
   const [scale, setScale] = useState(1);
-  const [color, setColor] = useState("#FF0000");
+  const [color, setColor] = useState("black");
   const [showColor, setShowColor] = useState(false);
-  const [stroke, setStroke] = useState(5);
+  const [stroke, setStroke] = useState(2);
   const [opacity, setOpacity] = useState(1);
   const [tool, setTool] = useState("draw");
   const [drawTool, setDrawTool] = useState("rect");
@@ -92,7 +104,6 @@ export default function Step6() {
       }
     }
     if (tool == "delete" && hoveringInner) {
-      console.log({ shapes, innerHoveredShapes });
       let shape = shapes[innerHoveredShapes[0]];
       if (shape.shape == "rect") {
         const newShapes = [...shapes]; // Create a copy of the original array
@@ -124,6 +135,7 @@ export default function Step6() {
           (e.clientX - startX * scale - rect.left) / scale,
           (e.clientY - startY * scale - rect.top) / scale,
           color,
+          opacity,
           stroke
         );
       }
@@ -192,11 +204,14 @@ export default function Step6() {
       }
     }
     if (tool == "move" && moving) {
-      console.log("move shape");
       let shape = shapes[borderHoveredShapes[0]];
       if (shape) {
-        shape.x = e.clientX - rect.left;
-        shape.y = e.clientY - rect.top;
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        shape.x += x - startX;
+        shape.y += y - startY;
+        setStartX(x);
+        setStartY(y);
         replaceShape(innerHoveredShapes[0], shape);
       }
     }
@@ -493,6 +508,18 @@ export default function Step6() {
             }
             ${hoveringBorder && tool == "move" && "cursor-move"}
             ${hoveringInner && tool == "delete" && "cursor-delete"}
+            ${tool == "erace" && "cursor-erace"}
+            `}
+            scale={scale}
+          />
+          <canvas
+            ref={noneEditableCanvasRef}
+            onMouseDown={(e) => handleMouseDown(e)}
+            onMouseMove={(e) => handleMouseMove(e)}
+            onMouseUp={(e) => handleMouseUp(e)}
+            width={PW}
+            height={PH}
+            className={`z-30 absolute top-0 left-0 
             ${tool == "erace" && "cursor-erace"}
             `}
             scale={scale}
