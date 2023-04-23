@@ -14,19 +14,10 @@ const Step0 = ({ setActiveStep }) => {
         onClick={() => setActiveStep(0.1)}
         className="w-[400px] h-[60px] text-white bg-[#5fee8a] m-4 rounded-md hover:bg-cyan-600"
       >
-        Pdf from urls
+        Pdf from urls                                                           
       </button> */}
     </>
   );
 };
 
 export default Step0;
-const Heading = styled.h1`
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 40px;
-  color: #000000;
-  text-align: "center";
-`;

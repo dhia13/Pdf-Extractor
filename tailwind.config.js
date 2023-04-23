@@ -22,6 +22,11 @@ module.exports = {
         xxsm: "300px",
         xsm: "470px",
       },
+      cursor: {
+        delete: "url(/images/delete.png), pointer",
+        erace: "url(/images/erace.png), pointer",
+        fill: "url(/images/fill.png), pointer",
+      },
     },
   },
   plugins: [],
