@@ -1,8 +1,23 @@
 import { useEffect, useRef, useState } from "react"
-import ToolIcon from "./Components for uri pdf/ToolIcon"
-import { drawRect, drawCircle, renderShapes, drawLine, detectShapes } from "./Components for uri pdf/drawingTools"
-import { SketchPicker } from "react-color"
-export default function Paint() {
+import ToolIcon from "./PaintComponents/ToolIcon"
+import { drawRect, drawCircle, renderShapes, drawLine, detectShapes, detectRect } from "./PaintComponents/drawingTools"
+import { SketchPicker ,PhotoshopPicker, AlphaPicker, BlockPicker, CompactPicker} from "react-color"
+import InputSlider from "./PaintComponents/Slider";
+import Image from "next/image";
+import { Document, Page, pdfjs } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+export default function Paint({pdfDoc,page}) {
+	const [file,setFile]=useState()
+	const Doc2File = async () => {
+		const newBlob = await pdfDoc.save();
+		const file = new File([newBlob], "testssPdf.pdf", {
+		  type: "application/pdf",
+		});
+		setFile(file);
+	  };
+	useEffect(()=>{
+		Doc2File()
+	},[])
 	const pdfRef = useRef(null)
 	const paintingsRef = useRef(null)
 	const plansRef = useRef(null)
@@ -14,7 +29,7 @@ export default function Paint() {
 	const [drawingCanvas, setDrawingCanvas] = useState(drawingRef.current)
 	const [PW, setPW] = useState(0)
 	const [PH, setPh] = useState(0)
-	const [scale, setScale] = useState(1)
+	const [scale, setScale] = useState(1.5)
 	const [color, setColor] = useState("#000000")
 	const [showColor, setShowColor] = useState(false)
 	const [stroke, setStroke] = useState(1)
@@ -31,48 +46,73 @@ export default function Paint() {
 	const [moving, setMoving] = useState(false)
 	const [writing, setWriting] = useState(false)
 	const [planEditHover, setPlanEditHover] = useState(false)
+	const [splitDirectionVertical, setSplitDirectionVertical] = useState(false)
 	const [editPlan, setEditPlan] = useState(false)
+	const [clearing, setClearing] = useState(false)
+	const [loaded,setLoaded]=useState(false)
+	// sliders
+	const [opacitySlider,setOpacitySlider]=useState(false)
+	const [zoomSlider,setZoomSlider]=useState(false)
 	const handleColorChange = (newColor) => {
 		setColor(newColor.hex)
 	}
-	const replacePlan = (index, newShape) => {
-		const newPlans = [...plans] // Create a copy of the original array
-		newPlans.splice(index, 1, newShape) // Remove one element at the specified index and insert the new shape
-		setPlans(newPlans) // Update the state with the new array
+	const replaceElementInArray = (index, newShape, type) => {
+		if (type == "plan") {
+			const newPlans = [...plans] // Create a copy of the original array
+			newPlans.splice(index, 1, newShape) // Remove one element at the specified index and insert the new shape
+			setPlans(newPlans) // Update the state with the new array
+		}
+		if (type == "painting") {
+			const newPaintings = [...paintings] // Create a copy of the original array
+			newPaintings.splice(index, 1, newShape) // Remove one element at the specified index and insert the new shape
+			setPaintings(newPaintings) // Update the state with the new array
+		}
 	}
-	console.log(hoveredPlans)
 	useEffect(() => {
 		setPaintingsCanvas(paintingsRef.current)
 		setPlansCanvas(plansRef.current)
 		setDrawingCanvas(drawingRef.current)
 	}, [drawingRef, plansRef, paintingsRef])
-	useEffect(() => {
-		;(async function () {
-			const pdfJS = await import("pdfjs-dist/build/pdf")
-			pdfJS.GlobalWorkerOptions.workerSrc = window.location.origin + "/pdf.worker.min.js"
-			const pdf = await pdfJS.getDocument(
-				"https://www.cdc.gov/tobacco/basic_information/e-cigarettes/severe-lung-disease/healthcare-providers/pdfs/Lab-Clinical-Specimen-Collection-Storage-Guidance-Lung-Injury-508.pdf"
-			).promise
-			const page = await pdf.getPage(2)
-			const viewport = page.getViewport({ scale })
-			const canvas = pdfRef.current
-			const canvasContext = canvas.getContext("2d")
-			canvas.height = viewport.height
-			canvas.width = viewport.width
-			setPW(pdfRef.current.offsetWidth)
-			setPh(pdfRef.current.offsetHeight)
-			const renderContext = { canvasContext, viewport }
-			page.render(renderContext)
-		})()
-	}, [pdfRef, scale])
+	useEffect(()=>{
+		if(pdfRef){
+			const el = pdfRef.current;
+			if (el) {
+				const w = el.offsetWidth;
+				setPW(w)
+				const h = el.offsetHeight;
+				setPh(h)
+			  }
+		}
+	},[pdfRef,loaded,scale])
+	// useEffect(() => {
+	// 	;(async function () {
+	// 		const pdfJS = await import("pdfjs-dist/build/pdf")
+	// 		pdfJS.GlobalWorkerOptions.workerSrc = window.location.origin + "/pdf.worker.min.js"
+	// 		const pdf = await pdfJS.getDocument(
+	// 			"https://www.cdc.gov/tobacco/basic_information/e-cigarettes/severe-lung-disease/healthcare-providers/pdfs/Lab-Clinical-Specimen-Collection-Storage-Guidance-Lung-Injury-508.pdf"
+	// 		).promise
+	// 		const page = await pdf.getPage(2)
+	// 		const viewport = page.getViewport({ scale })
+			// const canvas = pdfRef.current
+			// const canvasContext = canvas.getContext("2d")
+			// canvas.height = viewport.height
+	// 		canvas.width = viewport.width
+	// 		setPW(pdfRef.current.offsetWidth)
+	// 		setPh(pdfRef.current.offsetHeight)
+	// 		const renderContext = { canvasContext, viewport }
+	// 		page.render(renderContext)
+	// 	})()
+	// }, [pdfRef, scale])
 	// render paintings
 	useEffect(() => {
-		if (paintingsCanvas) {
-			renderShapes(paintingsCanvas, scale, paintings)
-		}
-		if (plansCanvas) {
-			renderShapes(plansCanvas, scale, plans)
-		}
+		setTimeout(() => {
+			if (paintingsCanvas) {
+				renderShapes(paintingsCanvas, scale, paintings)
+			}
+			if (plansCanvas) {
+				renderShapes(plansCanvas, scale, plans)
+			}
+		}, 200);
 	}, [scale])
 	useEffect(() => {
 		if (plansCanvas) {
@@ -83,40 +123,64 @@ export default function Paint() {
 	}, [plans])
 	const handleMouseDown = (e) => {
 		const rect = paintingsCanvas.getBoundingClientRect()
+		let mouseX = (e.clientX - rect.left) / scale
+		let mouseY = (e.clientY - rect.top) / scale
 		if (tool === "draw") {
-			setStartX((e.clientX - rect.left) / scale)
-			setStartY((e.clientY - rect.top) / scale)
+			setStartX(mouseX)
+			setStartY(mouseY)
 			if (drawTool === "text") {
 				setWriting(true)
 			} else if (drawTool == "plan" && hoveringPlan) {
 				let plan = plans[hoveredPlans[0]]
 				if (plan.shape == "plan" && !plan.splited) {
-					console.log({ plan, hoveredPlans })
 					plan.splited = true
-					plan.splitPoint.x = e.clientX - rect.left
-					plan.splitPoint.y = e.clientY - rect.top
-					replacePlan(hoveredPlans[0], plan)
+					plan.splitPoint.x = mouseX
+					plan.splitPoint.y = mouseY
+					replaceElementInArray(hoveredPlans[0], plan, "plan")
 				}
 			} else {
+				if (drawTool == "pen") {
+					let painting = {
+						shape:'painting',
+						coordinations: [
+							{
+								x: (e.clientX - rect.left) / scale,
+								y: (e.clientY - rect.top) / scale,
+							},
+						],
+						stroke,
+						color,
+						lineCap:'round',
+						opacity,
+					}
+					let newPaintings = [...paintings, painting] // create new array with new shape added
+					setPaintings(newPaintings)
+				}
 				setDrawing(true)
 			}
 		}
 		if (tool == "delete" && hoveringPlan) {
-			let shape = paintings[hoveredPlans[0]]
-			if (shape.shape == "plan") {
-				const newShapes = [...paintings] // Create a copy of the original array
-				newShapes.splice(hoveredPlans[0], 1) // Remove one element at the specified index and insert the new shape
-				setPlans(newShapes)
+			let plan = plans[hoveredPlans[0]]
+			if (plan.shape == "plan") {
+				const newPlans = [...plans] // Create a copy of the original array
+				newPlans.splice(hoveredPlans[0], 1) // Remove one element at the specified index and insert the new shape
+				setPlans(newPlans)
 			}
 		}
-		if (tool == "fill" && hoveringPlan) {
-			console.log("hover with fill tool")
-			// let shape = paintings[hoveredPlans[0]];
-			// if (shape.shape == "rect") {
-			//   const newShapes = [...paintings]; // Create a copy of the original array
-			//   newShapes.splice(hoveredPlans[0], 1); // Remove one element at the specified index and insert the new shape
-			//   setPaintings(newShapes);
-			// }
+		if (drawTool == "fill" && hoveringPlan) {
+			let plan = plans[hoveredPlans[0]]
+			if (plan.splited) {
+				const subPlan = detectRect(mouseX, mouseY, plan)
+				if (subPlan == 1) {
+					plan.subColors.color1 = color
+				} else {
+					plan.subColors.color2 = color
+				}
+			} else {
+				plan.filled = true
+				plan.fillColor = color
+			}
+			replaceElementInArray(hoveredPlans[0], plan, "plan")
 		}
 		if (drawTool == "plan" && planEditHover) {
 			setEditPlan(true)
@@ -124,16 +188,39 @@ export default function Paint() {
 		}
 		if (tool == "move" && hoveringPlanBorder) {
 			setMoving(true)
-			setStartX((e.clientX - rect.left) / scale)
-			setStartY((e.clientY - rect.top) / scale)
+			setStartX(mouseX)
+			setStartY(mouseY)
 		}
 	}
 	const handleMouseMove = (e) => {
 		const rect = drawingCanvas.getBoundingClientRect()
-		const ctx = drawingCanvas.getContext("2d")
+		let ctx = drawingCanvas.getContext("2d")
 		//draw
 		if (tool == "draw" && drawing) {
 			ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height)
+			if (drawTool == "pen") {
+				let painting = paintings[paintings.length - 1]
+				ctx = paintingsCanvas.getContext("2d")
+				ctx.globalAlpha = opacity
+				ctx.lineWidth = stroke
+				ctx.lineCap = "round"
+				ctx.globalAlpha = opacity
+				ctx.strokeStyle = color
+				ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
+				ctx.stroke()
+				ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
+				ctx.closePath()
+
+				let newCoordinations = [
+					...painting.coordinations,
+					{
+						x: (e.clientX - rect.left) / scale,
+						y: (e.clientY - rect.top) / scale,
+					},
+				]
+				painting.coordinations = newCoordinations
+				replaceElementInArray(-1, painting, "painting")
+			}
 			if (drawTool == "rect" || drawTool == "plan") {
 				drawRect(
 					drawingCanvas,
@@ -153,7 +240,7 @@ export default function Paint() {
 					scale,
 					startX,
 					startY,
-					Math.sqrt((e.clientX - startX * scale - rect.left) ** 2 + (e.clientY - startY * scale - rect.top) ** 2) / scale,
+					Math.sqrt((e.clientX / scale - startX - rect.left / scale) ** 2 + (e.clientY / scale - startY - rect.top / scale) ** 2),
 					color,
 					stroke
 				)
@@ -163,19 +250,23 @@ export default function Paint() {
 			}
 		}
 		// detect
-		if (tool == "move" || drawTool == "plan" || tool == "delete") {
+		if (tool == "move" || drawTool == "plan" || tool == "delete" || drawTool == "fill") {
 			if (!moving) {
 				let detected = detectShapes(scale, plans, e.clientX - rect.left, e.clientY - rect.top)
-				// console.log({
-				//   hoveringPlan: detected.hoveringPlan,
-				//   hoveringBorder: detected.hoveringBorder,
-				// });
 				setPlans(detected.plans)
 				setHoveredPlans(detected.hoveredPlans)
 				setHoveringPlan(detected.hoveringPlan)
 				setHoveredPlanBorders(detected.hoveredBorders)
 				setHoveringPlanBorder(detected.hoveringBorder)
 				setPlanEditHover(detected.planEditHover)
+				if (detected.hoveredPlans.length > 0) {
+					// console.log({circle:detected.planEditHover,plan:detected.hoveredPlans})
+					if (plans[detected.hoveredPlans[0]].h > plans[detected.hoveredPlans[0]].w) {
+						setSplitDirectionVertical(false)
+					} else {
+						setSplitDirectionVertical(true)
+					}
+				}
 			}
 		}
 		// edit plan
@@ -183,12 +274,12 @@ export default function Paint() {
 			let plan = plans[hoveredPlans[0]]
 			if (plan) {
 				if (plan.w > plan.h && (e.clientX - rect.left > plan.x || e.clientX - rect.left < plan.x + plan.w)) {
-					plan.splitPoint.x = e.clientX - rect.left
+					plan.splitPoint.x = (e.clientX - rect.left)/scale
 				}
 				if (plan.h > plan.w && (e.clientY - rect.top > plan.y || e.clientY - rect.top < plan.y + plan.h)) {
-					plan.splitPoint.y = e.clientY - rect.top
+					plan.splitPoint.y = (e.clientY - rect.top)/scale
 				}
-				replacePlan(hoveredPlans[0], plan)
+				replaceElementInArray(hoveredPlans[0], plan, "plan")
 			}
 		}
 		// move plan
@@ -201,11 +292,11 @@ export default function Paint() {
 				plan.y += y - startY
 				setStartX(x)
 				setStartY(y)
-				if (plan.shape == "rect" && plan.splited) {
+				if (plan.splited) {
 					plan.splitPoint.x += x - startX
-					plan.splitPoint.y += y - startX
+					plan.splitPoint.y += y - startY
 				}
-				replacePlan(hoveredPlans[0], plan)
+				replaceElementInArray(hoveredPlans[0], plan, "plan")
 			}
 		}
 	}
@@ -217,8 +308,8 @@ export default function Paint() {
 		let newPlan
 		let newPaintings
 		let newPlans
-		const rect = paintingsCanvas.getBoundingClientRect()
-		const ctx = drawingCanvas.getContext("2d")
+		const rect = drawingCanvas.getBoundingClientRect()
+		let ctx = drawingCanvas.getContext("2d")
 		ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height)
 		if (drawing) {
 			switch (drawTool) {
@@ -255,7 +346,6 @@ export default function Paint() {
 					setPaintings(newPaintings)
 					drawRect(paintingsCanvas, scale, x, y, w, h, color, opacity, stroke)
 					break
-
 				case "circle":
 					newPainting = {
 						shape: "circle",
@@ -273,7 +363,6 @@ export default function Paint() {
 					setPaintings(newPaintings)
 					drawCircle(paintingsCanvas, scale, newPainting.x, newPainting.y, newPainting.r, color, stroke)
 					break
-
 				case "line":
 					newPainting = {
 						shape: "line",
@@ -329,19 +418,195 @@ export default function Paint() {
 						setPlans(newPlans)
 					}
 					break
+				case "pen":
+					ctx = paintingsCanvas.getContext("2d")
+					ctx.beginPath()
 				default:
 					break
 			}
 		}
 	}
+	const handleMouseLeave =(e)=>{
+		setDrawing(false)
+		setMoving(false)
+		setEditPlan(false)
+		let newPainting
+		let newPlan
+		let newPaintings
+		let newPlans
+		const rect = drawingCanvas.getBoundingClientRect()
+		let ctx = drawingCanvas.getContext("2d")
+		ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height)
+		if (drawing) {
+			switch (drawTool) {
+				case "rect":
+					let x = startX
+					let y = startY
+					let w = (e.clientX - startX * scale - rect.left) / scale
+					let h = (e.clientY - startY * scale - rect.top) / scale
+					if (e.clientX - startX * scale - rect.left < 0) {
+						x = startX + (e.clientX - startX * scale - rect.left) / scale
+						w = Math.abs((e.clientX - startX * scale - rect.left) / scale)
+					}
+					if (e.clientY - startY * scale - rect.top < 0) {
+						y = startY + (e.clientY - startY * scale - rect.top) / scale
+						h = Math.abs(Math.abs(e.clientY - startY * scale - rect.top) / scale)
+					}
+					newPainting = {
+						shape: "rect",
+						x: x,
+						y: y,
+						w: w,
+						h: h,
+						color,
+						opacity,
+						stroke,
+						filled: false,
+						fillColor: "",
+						borderHovered: false,
+						innerHovered: false,
+						innerColor: "",
+						index: paintings.length,
+					}
+					newPaintings = [...paintings, newPainting] // create new array with new shape added
+					setPaintings(newPaintings)
+					drawRect(paintingsCanvas, scale, x, y, w, h, color, opacity, stroke)
+					break
+				case "circle":
+					newPainting = {
+						shape: "circle",
+						x: startX,
+						y: startY,
+						r: Math.sqrt((e.clientX - startX * scale - rect.left) ** 2 + (e.clientY - startY * scale - rect.top) ** 2) / scale,
+						color,
+						opacity,
+						stroke,
+						filled: false,
+						fillColor: "",
+						index: paintings.length,
+					}
+					newPaintings = [...paintings, newPainting] // create new array with new shape added
+					setPaintings(newPaintings)
+					drawCircle(paintingsCanvas, scale, newPainting.x, newPainting.y, newPainting.r, color, stroke)
+					break
+				case "line":
+					newPainting = {
+						shape: "line",
+						x: startX,
+						y: startY,
+						xb: (e.clientX - rect.left) / scale,
+						yb: (e.clientY - rect.top) / scale,
+						color,
+						opacity,
+						stroke,
+					}
+					newPaintings = [...paintings, newPainting] // create new array with new shape added
+					setPaintings(newPaintings)
+					drawLine(paintingsCanvas, scale, newPainting.x, newPainting.y, newPainting.xb, newPainting.yb, color, stroke)
+					break
+				case "plan":
+					if (!hoveringPlan && drawing) {
+						let x = startX
+						let y = startY
+						let w = (e.clientX - startX * scale - rect.left) / scale
+						let h = (e.clientY - startY * scale - rect.top) / scale
+						if (e.clientX - startX * scale - rect.left < 0) {
+							x = startX + (e.clientX - startX * scale - rect.left) / scale
+							w = Math.abs((e.clientX - startX * scale - rect.left) / scale)
+						}
+						if (e.clientY - startY * scale - rect.top < 0) {
+							y = startY + (e.clientY - startY * scale - rect.top) / scale
+							h = Math.abs(Math.abs(e.clientY - startY * scale - rect.top) / scale)
+						}
+						newPlan = {
+							shape: "plan",
+							x: x,
+							y: y,
+							w: w,
+							h: h,
+							color,
+							opacity,
+							stroke,
+							filled: false,
+							fillColor: "",
+							borderHovered: false,
+							hovered: false,
+							fillColor: "",
+							index: plans.length,
+							splited: false,
+							splitPoint: { x: 0, y: 0 },
+							subColors: {
+								color1: "#78f178",
+								color2: "#ec4444",
+							},
+						}
+						newPlans = [...plans, newPlan] // create new array with new shape added
+						setPlans(newPlans)
+					}
+					break
+				case "pen":
+					ctx = paintingsCanvas.getContext("2d")
+					ctx.beginPath()
+				default:
+					break
+			}
+		}
+	}
+	// console.log(paintings)
 	return (
 		<div className="w-full h-full border border-green-500 relative overflow-hidden">
 			{showColor && <div className="absolute top-0 left-0 w-screen h-screen z-50" onClick={() => setShowColor(false)} />}
-			{/* toolbars */}
-			<div className="w-full h-[100px]">
-				<div className="flex justify-center items-center h-[100px] gap-4 border border-gray-200">
-					<div className="flex justify-center items-center gap-2">
+			{opacitySlider && <div className="absolute top-0 left-0 w-screen h-screen z-40" onClick={() => setOpacitySlider(false)} />}
+			{zoomSlider && <div className="absolute top-0 left-0 w-screen h-screen z-40" onClick={() => setZoomSlider(false)} />}
+			{clearing && (
+				<div className="absolute top-0 left-0 w-screen h-screen z-50 flex justify-center items-center">
+					{/* shadow background */}
+					<div className="absolute top-0 left-0 w-screen h-screen z-20 bg-black opacity-10" onClick={() => setClearing(false)}></div>
+					{/* buttons */}
+					<div className="w-96 h-64  flex flex-col justify-center items-center border border-black z-30 bg-white gap-4 rounded-md ">
+						<p className="text-2xl text-red-600 text-center">You are about to reset all drawings</p>
 						<button
+							className="w-[200px] px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+							onClick={() => {
+								setPaintings([])
+								paintingsCanvas.getContext("2d").clearRect(0, 0, paintingsCanvas.width, paintingsCanvas.height)
+								setClearing(false)
+							}}
+						>
+							Clear paintings
+						</button>
+						<button
+							className="w-[200px] px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+							onClick={() => {
+								setPlans([])
+								plansCanvas.getContext("2d").clearRect(0, 0, plansCanvas.width, plansCanvas.height)
+								setClearing(false)
+							}}
+						>
+							Clear plans
+						</button>
+						<button
+							className="w-[200px] px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+							onClick={() => {
+								setPaintings([])
+								setPlans([])
+								plansCanvas.getContext("2d").clearRect(0, 0, plansCanvas.width, plansCanvas.height)
+								paintingsCanvas.getContext("2d").clearRect(0, 0, paintingsCanvas.width, paintingsCanvas.height)
+								setClearing(false)
+							}}
+						>
+							Clear All
+						</button>
+					</div>
+				</div>
+			)}
+			{/* toolbars */}
+			<div className="w-full h-[110px] flex bg-[#62BBC1] text-black">
+				<div className="w-[80px] h-[110px]"></div>
+				<div className="flex justify-start items-center h-[110px] gap-4 border-b border-gray-400 w-[calc(100%-100px)]">
+					{/* scale */}
+					<div className="flex justify-center items-center gap-2">
+						<Image width={24} height={24} src={`/images/zoomOut.png`} alt='zoonOut' className='cursor-pointer'
 							onClick={() => {
 								if (scale == 0.5) {
 									return
@@ -349,92 +614,54 @@ export default function Paint() {
 									setScale(scale - 0.5)
 								}
 							}}
-						>
-							<img width={32} height={32} src={`/images/zoomOut.png`} alt="zoomOut" />
-						</button>
-						<p
-							className="w-[40px] bg-blue-200 overflow-hidden"
-							title="scale" // added scale attribute to display tooltip
-						>
-							{scale}
-						</p>
-						<button onClick={() => setScale(scale + 0.5)}>
-							<img width={32} height={32} src={`/images/zoomIn.png`} alt="zoomIn" />
-						</button>
-					</div>
-					<div className="flex justify-center items-center gap-2">
-						<button
-							onClick={() => {
-								if (opacity <= 0.1) {
-									return
-								} else {
-									setOpacity(Math.max(opacity - 0.1, 0.1))
-								}
-							}}
-						>
-							<img width={28} height={28} src={`/images/minus.png`} alt="minus" />
-						</button>
-						<input
-							type="number"
-							value={opacity === 0 ? 0 : opacity === 1 ? 1 : opacity.toFixed(1)}
-							className="w-[40px] h-[28px] rounded-sm outline-none"
-							max={1}
-							min={0.1}
-							step={0.1}
-							title="Opacity" // added title attribute to display tooltip
-							onChange={(e) => {
-								let value = parseFloat(e.target.value)
-								if (value < 0.1) {
-									value = 0.1
-								} else if (value > 1) {
-									value = 1
-								}
-								setOpacity(value)
-							}}
 						/>
-						<button
-							onClick={() => {
-								if (opacity >= 1) {
-									return
-								} else {
-									setOpacity(Math.min(opacity + 0.1, 1))
-								}
-							}}
-						>
-							<img width={28} height={28} src={`/images/plus.png`} alt="plus" />
-						</button>
+						<input
+							title="stroke"
+							value={scale}
+							className='w-[58px] h-[26px] rounded-md pl-2 text-black'
+							onChange={(e) => setStroke(e.target.value)}
+						/>
+						<Image width={24} height={24} src={`/images/zoomIn.png`} alt='zoomIn' className='cursor-pointer'
+							onClick={() => setScale(scale + 0.5)}
+						/>
 					</div>
+					{/* opacity */}
+					<InputSlider value={opacity} setValue={setOpacity} title={"opacity"} show={opacitySlider} setShow={setOpacitySlider}/>
+					{/* stroke */}
 					<div className="flex justify-center items-center gap-2">
-						<button
+						<Image width={32} height={32} src={`/images/minus.png`} alt='arrow' className='cursor-pointer'
 							onClick={() => {
-								if (stroke == 0.5) {
+								if (stroke < 0.5) {
 									return
 								} else {
 									setStroke(stroke - 1)
-								}
-							}}
-						>
-							<img width={28} height={28} src={`/images/minus.png`} alt="minus" />
-						</button>
+								}}}
+						/>
 						<input
-							type="number"
-							title="stroke" // added stroke attribute to display tooltip
+							title="stroke"
 							value={stroke}
-							className="w-[40px] h-[28px] rounded-sm outline-none"
+							className='w-[58px] h-[26px] rounded-md pl-2 text-black'
 							onChange={(e) => setStroke(e.target.value)}
 						/>
-						<button onClick={() => setStroke(stroke + 1)}>
-							<img width={28} height={28} src={`/images/plus.png`} alt="plus" />
-						</button>
+						<Image width={24} height={24} src={`/images/plus.png`} alt='arrow' className='cursor-pointer'
+							onClick={() => {setStroke(stroke +1)}}
+						/>
 					</div>
-					<div className="relative">
+					{/* color changer */}
+					<div className="relative flex justify-center items-center gap-4">
 						<div
-							className={`w-8 h-8 z-60 border border-black z-50`}
+							className={`w-[48px] h-[48px] z-60 border border-black z-50 shadow-md`}
 							style={{ background: color, borderRadius: 4, cursor: "pointer" }}
 							onClick={() => setShowColor(true)}
 						></div>
-						{showColor && <SketchPicker color={color} onChange={handleColorChange} className="absolute top-8 left-8 z-50" />}
+						<CompactPicker color={color} onChange={handleColorChange}  />
+						{showColor && <SketchPicker disableAlpha={true} color={color} onChange={handleColorChange} className="absolute top-[68px] left-[48px] z-50" />}
 					</div>
+				</div>
+			</div>
+			<div className="w-full h-[calc(100vh-110px)]">
+				{/* side bar tools*/}
+				<div className="w-[80px] h-full top-[110px] absolute flex justify-start items-center gap-4 flex-col pt-2 border-r border-gray-400 bg-[#62BBC1]">
 					<ToolIcon
 						tool="move"
 						drawTool={tool}
@@ -443,35 +670,6 @@ export default function Paint() {
 						}}
 						disable={false}
 					/>
-					<ToolIcon
-						tool="split"
-						drawTool={tool}
-						setDrawTool={(tool) => {
-							setDrawTool(""), setTool(tool)
-						}}
-						disable={false}
-					/>
-					<ToolIcon
-						tool="delete"
-						drawTool={tool}
-						setDrawTool={(tool) => {
-							setDrawTool(""), setTool(tool)
-						}}
-						disable={false}
-					/>
-					<ToolIcon
-						tool="erace"
-						drawTool={tool}
-						setDrawTool={(tool) => {
-							setDrawTool(""), setTool(tool)
-						}}
-						disable={false}
-					/>
-				</div>
-			</div>
-			<div className="w-full h-[calc(100vh-100px)]">
-				{/* side bar */}
-				<div className="w-[100px] h-full top-[100px] absolute flex justify-start items-center gap-4 flex-col mt-4">
 					<ToolIcon
 						tool="circle"
 						drawTool={drawTool}
@@ -497,12 +695,20 @@ export default function Paint() {
 						disable={false}
 					/>
 					<ToolIcon
-						tool="text"
+						tool="pen"
 						drawTool={drawTool}
 						setDrawTool={(tool) => {
 							setDrawTool(tool), setTool("draw")
 						}}
 						disable={false}
+					/>
+					<ToolIcon
+						tool="text"
+						drawTool={drawTool}
+						setDrawTool={(tool) => {
+							setDrawTool(tool), setTool("draw")
+						}}
+						disable={true}
 					/>
 					<ToolIcon
 						tool="plan"
@@ -520,52 +726,88 @@ export default function Paint() {
 						}}
 						disable={false}
 					/>
+					<ToolIcon
+						tool="clear"
+						drawTool={drawTool}
+						setDrawTool={() => {
+							setClearing(true)
+						}}
+						disable={false}
+					/>
+					<ToolIcon
+						tool="delete"
+						drawTool={tool}
+						setDrawTool={(tool) => {
+							setDrawTool(""), setTool(tool)
+						}}
+						disable={false}
+					/>
+					<ToolIcon
+						tool="erace"
+						drawTool={tool}
+						setDrawTool={(tool) => {
+							setDrawTool(""), setTool(tool)
+						}}
+						disable={false}
+					/>
 				</div>
 				{/* display area */}
-				<div className="relative w-[calc(100vw-100px)] h-full left-[100px] overflow-scroll">
-					<canvas ref={pdfRef} className="absolute top-0 left-0 border-2 border-blue-500" scale={scale} />
+				<div className="relative w-[calc(100vw-80px)] h-full left-[80px] overflow-auto bg-white">
+					{/* <canvas ref={pdfRef} className="absolute top-0 left-0 " scale={scale} /> */}
+					<div ref={pdfRef} className='absolute top-0 left-0'>
+						<Document file={file}>
+							<Page pageNumber={1}               
+							onLoadSuccess={()=>setLoaded(!loaded)}
+							scale={scale}
+							/>
+						</Document>
+					</div>
+					{/* drawing canvas for animation  */}
 					<canvas
 						ref={drawingRef}
-						onMouseDown={(e) => handleMouseDown(e)}
-						onMouseMove={(e) => handleMouseMove(e)}
-						onMouseUp={(e) => handleMouseUp(e)}
 						width={PW}
 						height={PH}
-						className={`z-30 absolute top-0 left-0 ${planEditHover && "cursor-col-resize"}
-            ${hoveringPlanBorder && tool == "move" && "cursor-move"}
-            ${hoveringPlan && tool == "delete" && "cursor-delete"}
-            ${tool == "erace" && "cursor-erace"}
-            `}
+						className={`z-30 absolute top-0 left-0 border-[#EC058E] border`}
 						scale={scale}
 					/>
+					{/* paintings canvas */}
 					<canvas
 						ref={paintingsRef}
-						onMouseDown={(e) => handleMouseDown(e)}
-						onMouseMove={(e) => handleMouseMove(e)}
-						onMouseUp={(e) => handleMouseUp(e)}
 						width={PW}
 						height={PH}
-						className={`z-30 absolute top-0 left-0  ${planEditHover && "cursor-col-resize"}
-            ${tool == "fill" && "cursor-fill"}
-            ${hoveringPlanBorder && tool == "move" && "cursor-move"}
-            ${hoveringPlan && tool == "delete" && "cursor-delete"}
-            ${tool == "erace" && "cursor-erace"}
-            `}
-					></canvas>
+						className={`z-30 absolute top-0 left-0 `}
+						scale={scale}
+					/>
+					{/* plans canvas */}
 					<canvas
 						ref={plansRef}
 						onMouseDown={(e) => handleMouseDown(e)}
 						onMouseMove={(e) => handleMouseMove(e)}
 						onMouseUp={(e) => handleMouseUp(e)}
+						onMouseLeave={(e)=>handleMouseLeave(e)}
 						width={PW}
+						scale={scale}
 						height={PH}
 						className={`z-30 absolute top-0 left-0  ${planEditHover && "cursor-col-resize"}
-            ${tool == "fill" && "cursor-fill"}
-            ${hoveringPlanBorder && tool == "move" && "cursor-move"}
-            ${hoveringPlan && tool == "delete" && "cursor-delete"}
-            ${tool == "erace" && "cursor-erace"}
-            `}
-					></canvas>
+            				${drawTool == "fill" && hoveringPlan ? "cursor-fillA" : drawTool == "fill" ? "cursor-fill" : ""}
+							${drawTool == "plan" &&(hoveringPlan
+											? splitDirectionVertical
+												? planEditHover
+													? "cursor-splitHA"
+													: "cursor-splitH"
+												: planEditHover
+												? "cursor-splitVA"
+												: "cursor-splitV"
+											: drawing
+											? "cursor-planA"
+											: "cursor-plan")}
+							${hoveringPlanBorder && tool == "move" && "cursor-move"}
+							${hoveringPlan && tool == "delete" && "cursor-delete"}
+							${tool == "erace" && "cursor-erace"}
+							${drawTool == "pen" && "cursor-pen"}
+							`}
+					/>
+					</div>
 					{writing && (
 						<div
 							style={{
@@ -587,7 +829,6 @@ export default function Paint() {
 							</div>
 						</div>
 					)}
-				</div>
 			</div>
 		</div>
 	)

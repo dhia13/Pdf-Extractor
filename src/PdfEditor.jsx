@@ -1,14 +1,14 @@
 import { useState } from "react";
-import Step0 from "./Step0";
-import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-import Step4 from "./Step4";
-import Backup from "./Backup"; //active step 10
-import SplitPain from "./Components for uri pdf/SplitPaint"; // active step 11
-import Paint from "./Paint"; // active step 5
+import Step0 from "./Components/Step0";
+import Step1 from "./Components/Step1";
+import Step2 from "./Components/Step2";
+import Step3 from "./Components/Step3";
+import Step4 from "./Components/Step4";
+import Test from "./Components/Test"; //active step 10
+import SplitPain from "./Components/PaintComponents/SplitPaint"; // active step 11
+import Paint from "./Components/Paint"; // active step 5
 const PdfEditor = () => {
-  const [activeStep, setActiveStep] = useState(5);
+  const [activeStep, setActiveStep] = useState(0);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [fileNames, setFileNames] = useState([]);
   const [pdfDocs, setPdfDocs] = useState([]);
@@ -74,6 +74,7 @@ const PdfEditor = () => {
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}
+              pageNumber={sketchInfo.selectedPage}
             />
           )}
           {activeStep == 11 && (
@@ -84,7 +85,7 @@ const PdfEditor = () => {
             />
           )}
           {activeStep == 10 && (
-            <Backup
+            <Test
               setSketchInfo={setSketchInfo}
               sketchInfo={sketchInfo}
               pdfDoc={pdfDoc}
