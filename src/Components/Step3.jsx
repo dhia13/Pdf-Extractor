@@ -22,7 +22,11 @@ const Step3 = ({
   };
   const handleDraw = () => {
     let pages = new Array(pdfDoc.pageCount);
-    pages.fill({ page: 0, edited: false, sketches: [] });
+    pages.fill({
+      page: 0,
+      edited: false,
+      sketches: { plans: [], paintings: [] },
+    });
     pages = pages.map((page, index) => {
       return {
         page: index + 1,
@@ -41,7 +45,7 @@ const Step3 = ({
     setActiveStep(4);
   };
   return (
-    <>
+    <div className="w-full h-full flex justify-center items-center flex-col">
       <div className="flex justify-center items-center gap-4 mb-20">
         <img
           src="/images/back.png"
@@ -55,24 +59,27 @@ const Step3 = ({
         />
         <Heading>Let’s go! Download your new Pdf File</Heading>
       </div>
-      <ContinueBtn
-        onClick={() => {
-          handleDownload();
-        }}
-      >
-        Download File
-      </ContinueBtn>
-      <ContinueBtn
-        onClick={() => {
-          handleDraw();
-        }}
-      >
-        Draw On pdf
-      </ContinueBtn>
-    </>
+      <div className="flex flex-col gap-6">
+        <ContinueBtn
+          className="hover:bg-[#0B7189]"
+          onClick={() => {
+            handleDownload();
+          }}
+        >
+          Download File
+        </ContinueBtn>
+        <ContinueBtn
+          className="hover:bg-[#0B7189]"
+          onClick={() => {
+            handleDraw();
+          }}
+        >
+          Draw On pdf
+        </ContinueBtn>
+      </div>
+    </div>
   );
 };
-
 export default Step3;
 const Heading = styled.h1`
   font-family: Roboto;
@@ -82,7 +89,7 @@ const Heading = styled.h1`
   line-height: 40px;
 `;
 const ContinueBtn = styled.button`
-  background: #5fee8a;
+  background: #228cdb;
   border: 1px solid #2994ff;
   padding: 8px 120px;
   border-radius: 5px;

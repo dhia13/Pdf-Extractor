@@ -39,8 +39,8 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
     }
   };
   return (
-    <>
-      <div className="flex justify-center items-center gap-4">
+    <div className="w-full h-full flex justify-center items-center flex-col">
+      <div className="flex  justify-center items-center gap-4">
         <img
           src="/images/back.png"
           alt="back"
@@ -73,14 +73,13 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
             <TabOptions key={index}>{name}</TabOptions>
           ))}
       </TabDiv>
-      <Divider />
       <Container1>
-        <Wrapper className="flex justify-center items-center flex-col">
+        <Wrapper>
           <UploadBtn onClick={() => fileInput.current.click()}>
             <IoAddCircleSharp
               style={{
                 position: "relative",
-                color: "#2491ff",
+                color: "#1ef080",
                 cursor: "pointer",
               }}
               size="50"
@@ -97,9 +96,8 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
           <Paratext>Click the add button to upload your pdf files</Paratext>
         </Wrapper>
       </Container1>
-      <Divider />
       <button
-        className="w-full h-[60px] text-white bg-[#5fee8a] m-4 rounded-md hover:bg-cyan-600"
+        className="w-[300px] h-[60px] text-white bg-[#228CDB] m-4 rounded-md hover:bg-[#0B7189]"
         onClick={() => handleNext()}
       >
         Continue to select pages
@@ -107,7 +105,7 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
       {err && (
         <SubHeading style={{ color: "red" }}>Please select a file</SubHeading>
       )}
-    </>
+    </div>
   );
 };
 
@@ -127,19 +125,22 @@ const SubHeading = styled.h1`
   font-weight: 480;
   font-size: 16px;
   line-height: 40px;
-  color: #707070;
+  color: #000000;
   text-align: "center";
 `;
 const Wrapper = styled.div`
   position: relative;
   z-index: 1;
-  background-color: #5fee8a;
-  width: 100%;
+  background-color: #228cdb;
+  width: 1000px;
   height: 400px;
   border-radius: 10px;
   border: 0.25px solid lightgray;
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   // overflow-x: auto;
 `;
 const UploadBtn = styled.div`
@@ -153,17 +154,12 @@ const Container1 = styled.div`
   align-items: center;
   justify-content: center;
 `;
-const Divider = styled.div`
-  border-bottom: 1px solid lightgray;
-  width: 100%;
-  margin-top: 20px;
-  margin-bottom: 20px;
-`;
 const Paratext = styled.p`
   display: flex;
   justify-content: center;
   padding-top: 10px;
-  color: #707070;
+  color: black;
+  font-size: 20px;
   font-weight: 450;
   padding-bottom: 20px;
 `;
@@ -174,15 +170,16 @@ const TabDiv = styled.div`
   white-space: nowrap;
   height: 70px;
   overflow-x: scroll;
-  width: 100%;
+  margin-bottom: 10px;
+  width: 1000px;
   gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;
-    background-color: #f5f5f5;
+    background-color: #0b7189;
   }
   ::-webkit-scrollbar {
     height: 7px !important;
-    background-color: #f5f5f5;
+    background-color: white;
   }
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;
@@ -191,7 +188,7 @@ const TabDiv = styled.div`
 `;
 const TabOptions = styled.button`
   flex: 0 0 auto;
-  background-color: #5fee8a;
+  background-color: #228cdb;
   overflow: hidden;
   border-radius: 10px;
   color: #ffffff;

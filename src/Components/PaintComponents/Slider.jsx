@@ -1,17 +1,17 @@
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import Slider from '@mui/material/Slider';
-import MuiInput from '@mui/material/Input';
-import Image from 'next/image';
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Slider from "@mui/material/Slider";
+import MuiInput from "@mui/material/Input";
+import Image from "next/image";
 
-export default function InputSlider({title,value,setValue,show,setShow}) {
+export default function InputSlider({ title, value, setValue, show, setShow }) {
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const handleInputChange = (event) => {
-    setValue(event.target.value === '' ? '' : Number(event.target.value));
+    setValue(event.target.value === "" ? "" : Number(event.target.value));
   };
 
   const handleBlur = () => {
@@ -21,17 +21,16 @@ export default function InputSlider({title,value,setValue,show,setShow}) {
       setValue(100);
     }
   };
-const handleOpen = ()=>{
-    setShow(true)
-}
+  const handleOpen = () => {
+    setShow(true);
+  };
   return (
-    <Box className='relative h-[32px]'>
-      <div className='justify-center items-center flex gap-2 '>
-        <p className='text-base font-semibold'>
-          {title}
-        </p>
+    <Box className="relative h-[32px]">
+      <div className="justify-center items-center flex gap-2 ">
+        <p className="text-base font-semibold">{title}</p>
         <div>
-          <input className='w-[58px] h-[26px] rounded-md pl-2 text-black'
+          <input
+            className="w-[58px] h-[26px] rounded-md pl-2 text-black border border-black"
             value={value}
             size="small"
             onChange={handleInputChange}
@@ -40,22 +39,29 @@ const handleOpen = ()=>{
               step: 5,
               min: 0,
               max: 100,
-              type: 'number',
+              type: "number",
             }}
           />
         </div>
-        <div className='cursor-pointer hover:text-gray-400'>
-          <Image width={32} height={32} src={`/images/down.svg`} alt='arrow' onClick={handleOpen} className='cursor-pointer'/>
+        <div className="cursor-pointer hover:text-gray-400">
+          <Image
+            width={32}
+            height={32}
+            src={`/images/down.svg`}
+            alt="arrow"
+            onClick={handleOpen}
+            className="cursor-pointer"
+          />
         </div>
       </div>
-      {show &&
-          <Slider
-            value={typeof value === 'number' ? value : 0}
-            onChange={handleSliderChange}
-            aria-labelledby="input-slider"
-            className='absolute top-[10px] left-1 w-[130px] z-50'
-          />
-      }
+      {show && (
+        <Slider
+          value={typeof value === "number" ? value : 0}
+          onChange={handleSliderChange}
+          aria-labelledby="input-slider"
+          className="absolute top-[10px] left-1 w-full z-50"
+        />
+      )}
     </Box>
   );
 }

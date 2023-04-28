@@ -46,10 +46,9 @@ export function drawPlan(
   const ctx = canvas.getContext("2d");
   if (splited) {
     if (splited && w > h) {
+      const radius = Math.min(20, Math.max(h / 8, 10));
       const leftRectWidth = splitPoint.x - x;
       const rightRectWidth = w - (splitPoint.x - x);
-      const radius = Math.min(20, Math.max(h / 8, 10));
-
       drawRect(
         canvas,
         scale,
@@ -83,6 +82,7 @@ export function drawPlan(
     if (h > w) {
       const leftRectHeight = splitPoint.y - y;
       const rightRectHeight = h - (splitPoint.y - y);
+      const radius = Math.min(20, Math.max(w / 8, 10));
 
       ctx.lineWidth = stroke * scale;
       drawRect(
@@ -112,7 +112,6 @@ export function drawPlan(
         subColors.color2
       );
 
-      const radius = Math.min(20, Math.max(w / 8, 10));
       drawCircle(canvas, scale, x + w / 2, splitPoint.y, radius, "black", 1);
       drawArrow(canvas, scale, x + w / 2, splitPoint.y, "top", radius, 1);
       drawArrow(canvas, scale, x + w / 2, splitPoint.y, "bottom", radius, 1);
@@ -188,9 +187,7 @@ export function drawArrow(canvas, scale, x, y, direction, size, stroke) {
 }
 
 export function drawPainting(canvas, scale, coordinations, color, stroke) {
-  console.log("draw painting");
   const ctx = canvas.getContext("2d");
-  console.log(coordinations);
   ctx.lineWidth = stroke;
   ctx.lineCap = "round";
   ctx.strokeStyle = color;
@@ -204,11 +201,13 @@ export function drawPainting(canvas, scale, coordinations, color, stroke) {
   ctx.closePath();
 }
 
-export function drawText(canvas, x, y, scale, text, fontSize, color) {
+export function drawText(canvas, scale, x, y, text, fontSize, color, opacity) {
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = color;
   ctx.font = `${fontSize * scale}px sans-serif`;
+  ctx.globalAlpha = opacity || 1;
   ctx.fillText(text, x * scale, y * scale);
+  ctx.globalAlpha = 1; // reset globalAlpha to default value
 }
 
 export function renderShapes(canvas, scale, shapes) {
@@ -258,6 +257,19 @@ export function renderShapes(canvas, scale, shapes) {
           shape.color,
           shape.stroke
         );
+        break;
+      case "text":
+        drawText(
+          canvas,
+          scale,
+          shape.x,
+          shape.y,
+          shape.text,
+          shape.fontSize,
+          shape.color,
+          shape.opacity
+        );
+        break;
       case "plan":
         drawPlan(
           canvas,
@@ -322,32 +334,30 @@ export function detectShapes(scale, plans, mouseX, mouseY) {
       ) {
         plan.hovered = true;
         hoveredPlans.push(i);
-      }
-      if (splited) {
-        if (w > h) {
-          insideCircle = isPointInCircle(
-            splitPoint.x * scale,
-            (y + h / 2) * scale,
-            14,
-            mouseX,
-            mouseY,
-            scale
-          );
-          if (insideCircle) {
-            planEditHover = true;
+        if (splited) {
+          if (w > h) {
+            insideCircle = isPointInCircle(
+              splitPoint.x * scale,
+              (y + h / 2) * scale,
+              Math.min(20, Math.max(h / 8, 10)) * scale,
+              mouseX,
+              mouseY
+            );
+            if (insideCircle) {
+              planEditHover = true;
+            }
           }
-        } else if (h > w) {
-          insideCircle = isPointInCircle(
-            x + (w / 2) * scale,
-            splitPoint.y * scale,
-            14,
-            mouseX,
-            mouseY,
-            scale
-          );
-          console.log(insideCircle);
-          if (insideCircle) {
-            planEditHover = true;
+          if (h > w) {
+            insideCircle = isPointInCircle(
+              x + (w / 2) * scale,
+              splitPoint.y * scale,
+              Math.min(20, Math.max(w / 8, 10)) * scale,
+              mouseX,
+              mouseY
+            );
+            if (insideCircle) {
+              planEditHover = true;
+            }
           }
         }
       }
@@ -369,11 +379,11 @@ export function detectShapes(scale, plans, mouseX, mouseY) {
   };
 }
 
-export function isPointInCircle(X0, Y0, radius, X, Y, scale) {
+export function isPointInCircle(X0, Y0, radius, X, Y) {
   const dx = X - X0;
   const dy = Y - Y0;
   const distance = Math.sqrt(dx * dx + dy * dy);
-  return distance <= radius * scale;
+  return distance <= radius;
 }
 
 export function detectRect(mouseX, mouseY, plan) {
