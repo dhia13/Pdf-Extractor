@@ -704,7 +704,7 @@ export default function Paint({
           setDrawTool={(tool) => {
             setDrawTool(tool), setTool("draw");
           }}
-          disable={false}
+          disable={true}
         />
         <ToolIcon
           tool="text"
@@ -712,7 +712,7 @@ export default function Paint({
           setDrawTool={(tool) => {
             setDrawTool(tool), setTool("draw");
           }}
-          disable={false}
+          disable={true}
         />
         <ToolIcon
           tool="plan"
@@ -752,7 +752,7 @@ export default function Paint({
           setDrawTool={(tool) => {
             setDrawTool(""), setTool(tool);
           }}
-          disable={false}
+          disable={true}
         />
       </div>
       {/* canvases */}
