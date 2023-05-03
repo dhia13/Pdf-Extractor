@@ -4,9 +4,8 @@ import Step1 from "./Components/Step1";
 import Step2 from "./Components/Step2";
 import Step3 from "./Components/Step3";
 import Step4 from "./Components/Step4";
-import Test from "./Components/Test"; //active step 10
-import SplitPain from "./Components/PaintComponents/SplitPaint"; // active step 11
 import Paint from "./Components/Paint"; // active step 5
+import Mo from "./Components/PaintComponents/Mo";
 const PdfEditor = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -80,15 +79,8 @@ const PdfEditor = () => {
           editedpdfDoc={editedpdfDoc}
         />
       )}
-      {activeStep == 11 && (
-        <SplitPain
-          setSketchInfo={setSketchInfo}
-          sketchInfo={sketchInfo}
-          pdfDoc={pdfDoc}
-        />
-      )}
-      {activeStep == 10 && (
-        <Test
+      {activeStep == 13 && (
+        <Mo
           setSketchInfo={setSketchInfo}
           sketchInfo={sketchInfo}
           pdfDoc={pdfDoc}

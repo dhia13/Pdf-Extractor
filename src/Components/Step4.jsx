@@ -1,11 +1,22 @@
 import styled from "styled-components";
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
-import { PDFDocument } from "pdf-lib";
-import { pdfjs } from "react-pdf";
+import { Document, Page, pdfjs } from "react-pdf";
 const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
   console.log({ sketchInfo, pdfDoc });
-
+  const [file, setFile] = useState(null);
+  const Doc2File = async () => {
+    const newBlob = await pdfDoc.save();
+    const file = new File([newBlob], "testssPdf.pdf", {
+      type: "application/pdf",
+    });
+    setFile(file);
+  };
+  useEffect(() => {
+    Doc2File();
+  }, []);
+  const pdfRef = useRef(null);
+  const [page, setPage] = useState(1);
   const handleDownloadRaw = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
@@ -17,89 +28,100 @@ const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
     link.href = url;
     link.click();
   };
-  async function exportPdfPages() {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const loadingTask = pdfjs.getDocument("/test.pdf");
-    const pdf = await loadingTask.promise;
+  const exportPdfPages = async () => {
+    const canvasWidth = pdfRef.current.clientWidth;
+    const canvasHeight = pdfRef.current.clientHeight;
+    const mergedCanvas = document.createElement("canvas");
+    mergedCanvas.width = canvasWidth;
+    mergedCanvas.height = canvasHeight;
+    const mergedCtx = mergedCanvas.getContext("2d");
+    const pdf = new jsPDF({
+      orientation: canvasWidth > canvasHeight ? "landscape" : "portrait",
+      unit: "px",
+      format: [canvasWidth, canvasHeight],
+    });
 
-    // Load information from the first page.
-    const page = await pdf.getPage(1);
-    console.log(page);
-    const scale = 1;
-    const viewport = page.getViewport(scale);
-
-    // Apply page dimensions to the `<canvas>` element.
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
-    // Render the page into the `<canvas>` element.
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport,
-    };
-    await page.render(renderContext);
-    console.log("Page rendered!");
-    // const page = await pdfDoc.getPage(1);
-    // console.log(page);
-    // // Set the canvas dimensions to match the page size
-    // const viewport = [page.getWidth(), page.getHeight()];
-    // canvas.width = viewport.width;
-    // canvas.height = viewport.height;
-
-    // // Render the page content on the canvas
-    // const renderContext = {
-    //   canvasContext: ctx,
-    //   viewport: viewport,
-    // };
-    // await page.render(renderContext).promise;
-
-    // // Draw a red rectangle on the canvas
-    // ctx.fillStyle = "red";
-    // ctx.fillRect(100, 100, 50, 50);
-
-    // // Save the canvas content as an image or PDF file
-    // canvas.toBlob((blob) => {
-    //   saveAs(blob, "page1.pdf");
-    // }, "application/pdf");
-  }
+    for (let i = 0; i < sketchInfo.pages.length; i++) {
+      setPage(i + 1);
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const page = sketchInfo.pages[i];
+      mergedCtx.drawImage(pdfRef.current, 0, 0, canvasWidth, canvasHeight);
+      page.sketches.shapes.forEach((shape) => {
+        shape.draw(mergedCanvas, 1);
+      });
+      if (i !== 0) {
+        pdf.addPage();
+      }
+      pdf.addImage(
+        mergedCanvas.toDataURL("image/jpeg"),
+        "JPEG",
+        0,
+        0,
+        canvasWidth,
+        canvasHeight,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        {
+          pageNumber: i + 1, // add page number to the image options
+        }
+      );
+    }
+    pdf.save("merged.pdf");
+  };
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center">
-      <Heading>You can modify pages by pressing on the pen</Heading>
-      <SubHeading>download the pdf Raw or with changes</SubHeading>
-      <SubHeading>
-        Note : (you need to save drawings and plans before you go back or enable
-        auto save )
-      </SubHeading>
-      {/* render pages */}
-      <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
-        {sketchInfo.pages.map((el, i) => (
-          <li
-            className="flex justify-between items-start font-medium flex-col w-full gap-1"
-            key={i}
-          >
-            <div className="w-full flex justify-between items-center">
-              {`Page ${i}`}
-              <div className="flex justify-center gap-2 items-center cursor-pointer">
-                <img
-                  src={`/images/${el.edited ? "bluepen" : "pen"}.png`}
-                  width={24}
-                  height={24}
-                  onClick={() => handleSelectPageForDrawing(i)}
-                />
+    <div className="w-full h-full relative">
+      <div className="w-full h-full flex flex-col justify-center items-center absolute top-0 left-0 z-50">
+        <Heading>You can modify pages by pressing on the pen</Heading>
+        <SubHeading>download the pdf Raw or with changes</SubHeading>
+        <SubHeading>
+          Note : (you need to save drawings and plans before you go back or
+          enable auto save )
+        </SubHeading>
+        {/* render pages */}
+        <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
+          {sketchInfo.pages.map((el, i) => (
+            <li
+              className="flex justify-between items-start font-medium flex-col w-full gap-1"
+              key={i}
+            >
+              <div className="w-full flex justify-between items-center">
+                {`Page ${i}`}
+                <div className="flex justify-center gap-2 items-center cursor-pointer">
+                  <img
+                    src={`/images/${el.edited ? "bluepen" : "pen"}.png`}
+                    width={24}
+                    height={24}
+                    onClick={() => handleSelectPageForDrawing(i)}
+                  />
+                </div>
               </div>
-            </div>
-            <Divider2 />
-          </li>
-        ))}
-      </PagesDiv>
-      <ContinueBtn className="hover:bg-[#0B7189]" onClick={exportPdfPages}>
-        Download Edited
-      </ContinueBtn>
-      <ContinueBtn className="hover:bg-[#0B7189]" onClick={handleDownloadRaw}>
-        Download Raw
-      </ContinueBtn>
+              <Divider2 />
+            </li>
+          ))}
+        </PagesDiv>
+        <ContinueBtn className="hover:bg-[#0B7189]" onClick={exportPdfPages}>
+          Download Edited
+        </ContinueBtn>
+        <ContinueBtn className="hover:bg-[#0B7189]" onClick={handleDownloadRaw}>
+          Download Raw
+        </ContinueBtn>
+      </div>
+      <>
+        <Document file={file} className="opacity-0 absolute top-0 left-0 z-10">
+          <Page
+            pageNumber={page}
+            canvasRef={pdfRef}
+            renderAnnotationLayer={false}
+            renderTextLayer={false}
+            // onLoadSuccess={() => setLoaded(!loaded)}
+          />
+        </Document>
+      </>
     </div>
   );
 };

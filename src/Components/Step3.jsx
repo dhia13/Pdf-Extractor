@@ -25,7 +25,7 @@ const Step3 = ({
     pages.fill({
       page: 0,
       edited: false,
-      sketches: { plans: [], paintings: [] },
+      sketches: { shapes: [] },
     });
     pages = pages.map((page, index) => {
       return {

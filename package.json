@@ -21,6 +21,7 @@
     "eslint": "8.34.0",
     "eslint-config-next": "13.1.6",
     "jspdf": "^2.5.1",
+    "moment": "^2.29.4",
     "next": "13.1.6",
     "pdf-lib": "^1.17.1",
     "pdfjs": "^2.4.7",

@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 // import { Document, Page } from 'react-pdf';
 import { Document, Page, pdfjs } from "react-pdf";
-import { Rect, Circle, Line, Plan } from "./PaintComponents/ShapesOOP";
-import ToolIcon from "./PaintComponents/ToolIcon";
-import InputSlider from "./PaintComponents/Slider";
+import { Rect, Circle, Line, Plan } from "./ShapesOOP";
+import ToolIcon from "./ToolIcon";
+import InputSlider from "./Slider";
 import { CompactPicker, SketchPicker } from "react-color";
 import Image from "next/image";
-import jsPDF from "jspdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-export default function Paint({
+export default function Test({
   pdfDoc,
   pageNumber,
   setActiveStep,
@@ -57,6 +56,7 @@ export default function Paint({
   const [spliting, setSpliting] = useState(false);
   const [splitStep, setSplitStep] = useState(0);
   const [splitDirection, setSplitDirection] = useState("");
+  const [splitStart, setSplitStart] = useState("");
   const [splitShapeIndex, setSplitShapeIndex] = useState();
   const [splitCircleHovered, setSplitCircleHovered] = useState(false);
   const [splitCircleShapes, setSplitCircleShapes] = useState(false);
@@ -436,43 +436,26 @@ export default function Paint({
     setSketchInfo(sketchInfo);
   };
   const exportPdfPage = () => {
-    const scaleFactor = 1;
-    const canvasWidth = (pdfRef.current.clientWidth / scale) * scaleFactor;
-    const canvasHeight = (pdfRef.current.clientHeight / scale) * scaleFactor;
     const mergedCanvas = document.createElement("canvas");
-    mergedCanvas.width = canvasWidth;
-    mergedCanvas.height = canvasHeight;
-    const mergedCtx = mergedCanvas.getContext("2d");
-    mergedCtx.drawImage(pdfRef.current, 0, 0, canvasWidth, canvasHeight);
-    shapes.forEach((shape) => {
-      shape.draw(mergedCanvas, scaleFactor);
-    });
+    mergedCanvas.width = 595;
+    mergedCanvas.height = 842;
 
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [canvasWidth, canvasHeight],
-    });
-    pdf.addImage(
-      mergedCanvas.toDataURL("image/jpeg"),
-      "JPEG",
-      0,
-      0,
-      canvasWidth,
-      canvasHeight,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      {
-        pageNumber: 1, // add page number to the image options
-      }
-    );
+    const mergedCtx = mergedCanvas.getContext("2d");
+
+    // draw pdf page
+    mergedCtx.drawImage(pdfRef.current.querySelector("canvas"), 0, 0, 595, 842);
+
+    // draw paintings
+    mergedCtx.drawImage(paintingsRef.current, 0, 0, 595, 842);
+
+    // draw plans
+    mergedCtx.drawImage(plansRef.current, 0, 0, 595, 842);
+
+    // export merged canvas as pdf
+    const pdf = new jsPDF();
+    pdf.addImage(mergedCanvas.toDataURL("image/jpeg"), "JPEG", 0, 0, 595, 842);
     pdf.save("merged.pdf");
   };
-
   const handleColorChange = (newColor) => {
     setColor(newColor.hex);
   };
@@ -756,13 +739,17 @@ export default function Paint({
         />
       </div>
       {/* canvases */}
-      <div className="relative w-[calc(100vw-80px)] h-[calc(100vh-110px)] left-[80px] top-[110px] overflow-auto bg-gray-200 z-30">
-        <Document file={file} className="absolute top-0 left-0 overflow-hidden">
+      <div className="relative w-[calc(100vw-80px)] h-[calc(100vh-110px)] left-[80px] top-[110px] overflow-auto bg-gray-200 z-50">
+        <Document
+          file={file}
+          className="absolute top-0 left-0 overflow-hidden"
+          width={595}
+          height={842}
+        >
           <Page
             pageNumber={pageNumber}
             canvasRef={pdfRef}
             renderAnnotationLayer={false}
-            renderTextLayer={false}
             onLoadSuccess={() => setLoaded(!loaded)}
             scale={scale}
           />
@@ -772,6 +759,7 @@ export default function Paint({
           width={PW}
           height={PH}
           className={`z-30 absolute top-0 left-0`}
+          scale={scale}
           onLoadSuccess={() => setLoaded(!loaded)}
         />
         {/* paintings canvas */}
@@ -805,14 +793,14 @@ export default function Paint({
 			`}
         />
         {spliting && (
-          <div className="z-50">
+          <div>
             {splitStep == 1 && (
               <>
                 <div
                   style={{
                     position: "absolute",
-                    top: startY * scale,
-                    left: startX * scale,
+                    top: startY,
+                    left: startX,
                   }}
                   className={`w-[270px] rounded-md z-50 gap-5 h-[130px] bg-white -translate-x-[100%] -translate-y-[100%] flex flex-col justify-start items-center`}
                 >
@@ -842,8 +830,8 @@ export default function Paint({
               <div
                 style={{
                   position: "absolute",
-                  top: startY * scale,
-                  left: startX * scale,
+                  top: startY,
+                  left: startX,
                   zIndex: 100,
                 }}
                 className={`w-[270px] rounded-md z-50 gap-5 h-[130px] bg-white -translate-x-[100%] -translate-y-[100%] flex flex-col justify-start items-center`}
