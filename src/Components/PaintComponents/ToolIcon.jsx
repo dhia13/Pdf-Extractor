@@ -1,7 +1,7 @@
-const ToolIcon = ({ tool, drawTool, setDrawTool, disable }) => {
+const ToolIcon = ({ tool, drawTool, setDrawTool, disable, className }) => {
   return (
     <div
-      className={`w-[50px] h-[50px] rounded-md flex justify-center items-center hover:bg-slate-300
+      className={`${className} w-[50px] h-[50px] rounded-md flex justify-center items-center hover:bg-slate-300 shadow-md
  ${
    drawTool === tool
      ? "bg-blue-200 cursor-pointer hover:bg-blue-300"

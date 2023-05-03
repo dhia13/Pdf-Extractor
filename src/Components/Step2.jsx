@@ -136,7 +136,7 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
     setSelectedDoc(0);
   }, []);
   return (
-    <>
+    <div className="w-full h-full flex justify-center items-center flex-col">
       <Heading>
         Select which page(s) from your pdf that you want for this specific line
         item
@@ -149,8 +149,9 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
       <TabDiv>
         {fileNames.map((name, index) => (
           <TabOptions
+            className="hover:bg-[##707070]"
             style={{
-              backgroundColor: name === selectedPdf && "#2994ff",
+              backgroundColor: name === selectedPdf && "#0B7189",
               color: name === selectedPdf && "white",
             }}
             key={index}
@@ -162,7 +163,7 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
           </TabOptions>
         ))}
       </TabDiv>
-      <div className="flex w-full h-[400px] relative">
+      <div className="flex w-[1000px] h-[400px] relative">
         {extracted &&
           pages.map((el, i) => (
             <PagesDiv
@@ -197,13 +198,18 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
             </PagesDiv>
           ))}
       </div>
-      <ContinueBtn onClick={handleNext}>Extract Pages</ContinueBtn>
+      <ContinueBtn
+        onClick={handleNext}
+        className="bg-[#228CDB] hover:bg-[#0B7189]"
+      >
+        Extract Pages
+      </ContinueBtn>
       {err && (
         <SubHeading style={{ color: "red" }}>
           Please select pages you would like to extract
         </SubHeading>
       )}
-    </>
+    </div>
   );
 };
 export default Step2;
@@ -224,7 +230,6 @@ const SubHeading = styled.h1`
   color: #707070;
 `;
 const ContinueBtn = styled.button`
-  background: #5fee8a;
   border: 1px solid #2994ff;
   padding: 8px 120px;
   border-radius: 5px;
@@ -242,6 +247,7 @@ const StyledCheckbox = styled.input.attrs({
   type: "checkbox",
 })`
   width: 15px;
+  cursor: pointer;
   height: 15px;
   float: right;
 `;
@@ -255,13 +261,12 @@ const PdfTitle = styled.p`
 `;
 const TabOptions = styled.button`
   flex: 0 0 auto;
-  background-color: white;
+  background-color: #228cdb;
   overflow: hidden;
-  border-radius: 20px;
-  cursor: pointer;
-  color: gray;
-  height: 35px;
-  padding: 0 10px 0 10px;
+  border-radius: 10px;
+  color: #ffffff;
+  height: 50px;
+  padding: 0px 10px 0px 10px;
   white-space: nowrap;
   font-weight: bold;
   :focus,
@@ -269,23 +274,24 @@ const TabOptions = styled.button`
     outline: none;
   }
 `;
+
 const TabDiv = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: start;
-  align-items: center;
   white-space: nowrap;
   height: 70px;
   overflow-x: scroll;
-  width: 100%;
+  margin-bottom: 10px;
+  width: 1000px;
   gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;
-    background-color: #f5f5f5;
+    background-color: #0b7189;
   }
   ::-webkit-scrollbar {
     height: 7px !important;
-    background-color: #f5f5f5;
+    background-color: white;
   }
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;

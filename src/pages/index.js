@@ -1,5 +1,5 @@
 import Head from "next/head";
-import PdfEditor from "../Components/PdfEditor";
+import PdfEditor from "../PdfEditor";
 export default function Home() {
   return (
     <>

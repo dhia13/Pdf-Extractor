@@ -1,30 +1,89 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-const Step2 = ({ sketchInfo, handleSelectPageForDrawing }) => {
-  console.log({ sketchInfo });
-  //   const [err, setErr] = useState(false);
+import jsPDF from "jspdf";
+import { PDFDocument } from "pdf-lib";
+import { pdfjs } from "react-pdf";
+const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
+  console.log({ sketchInfo, pdfDoc });
+
+  const handleDownloadRaw = async () => {
+    const newBlob = await pdfDoc.save();
+    const file = new File([newBlob], "testssPdf.pdf", {
+      type: "application/pdf",
+    });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.download = "kizaruEdit.pdf";
+    link.href = url;
+    link.click();
+  };
+  async function exportPdfPages() {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const loadingTask = pdfjs.getDocument("/test.pdf");
+    const pdf = await loadingTask.promise;
+
+    // Load information from the first page.
+    const page = await pdf.getPage(1);
+    console.log(page);
+    const scale = 1;
+    const viewport = page.getViewport(scale);
+
+    // Apply page dimensions to the `<canvas>` element.
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    // Render the page into the `<canvas>` element.
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport,
+    };
+    await page.render(renderContext);
+    console.log("Page rendered!");
+    // const page = await pdfDoc.getPage(1);
+    // console.log(page);
+    // // Set the canvas dimensions to match the page size
+    // const viewport = [page.getWidth(), page.getHeight()];
+    // canvas.width = viewport.width;
+    // canvas.height = viewport.height;
+
+    // // Render the page content on the canvas
+    // const renderContext = {
+    //   canvasContext: ctx,
+    //   viewport: viewport,
+    // };
+    // await page.render(renderContext).promise;
+
+    // // Draw a red rectangle on the canvas
+    // ctx.fillStyle = "red";
+    // ctx.fillRect(100, 100, 50, 50);
+
+    // // Save the canvas content as an image or PDF file
+    // canvas.toBlob((blob) => {
+    //   saveAs(blob, "page1.pdf");
+    // }, "application/pdf");
+  }
+
   return (
-    <>
-      <Heading>
-        Select which page(s) from your pdf that you want for this specific line
-        item
-      </Heading>
+    <div className="w-full h-full flex flex-col justify-center items-center">
+      <Heading>You can modify pages by pressing on the pen</Heading>
+      <SubHeading>download the pdf Raw or with changes</SubHeading>
       <SubHeading>
-        Select the page(s) you need and click next, to go back or add more click
-        the plus button
+        Note : (you need to save drawings and plans before you go back or enable
+        auto save )
       </SubHeading>
       {/* render pages */}
-      <PagesDiv className="flex w-full h-[400px] relative flex-col justify-start items-start">
+      <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
         {sketchInfo.pages.map((el, i) => (
           <li
             className="flex justify-between items-start font-medium flex-col w-full gap-1"
             key={i}
           >
             <div className="w-full flex justify-between items-center">
-              {`page ${i}`}
-              <div className="flex justify-center gap-2 items-center border border-red-200">
+              {`Page ${i}`}
+              <div className="flex justify-center gap-2 items-center cursor-pointer">
                 <img
-                  src="/images/edit.png"
+                  src={`/images/${el.edited ? "bluepen" : "pen"}.png`}
                   width={24}
                   height={24}
                   onClick={() => handleSelectPageForDrawing(i)}
@@ -35,16 +94,16 @@ const Step2 = ({ sketchInfo, handleSelectPageForDrawing }) => {
           </li>
         ))}
       </PagesDiv>
-      <ContinueBtn>Extract</ContinueBtn>
-      {/* {err && (
-        <SubHeading style={{ color: "red" }}>
-          Please select pages you would like to extract
-        </SubHeading>
-      )} */}
-    </>
+      <ContinueBtn className="hover:bg-[#0B7189]" onClick={exportPdfPages}>
+        Download Edited
+      </ContinueBtn>
+      <ContinueBtn className="hover:bg-[#0B7189]" onClick={handleDownloadRaw}>
+        Download Raw
+      </ContinueBtn>
+    </div>
   );
 };
-export default Step2;
+export default Step4;
 
 const Heading = styled.h1`
   font-family: Roboto;
@@ -62,12 +121,14 @@ const SubHeading = styled.h1`
   color: #707070;
 `;
 const ContinueBtn = styled.button`
-  background: #5fee8a;
+  background: #228cdb;
   border: 1px solid #2994ff;
   padding: 8px 120px;
   border-radius: 5px;
   color: white;
   float: left;
+  margin-bottom: 10px;
+  width: 400px;
 `;
 const Divider2 = styled.div`
   border-bottom: 1px solid lightgray;
@@ -133,8 +194,6 @@ const PagesDiv = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  width: 100%;
-
   margin-top: 10px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;
