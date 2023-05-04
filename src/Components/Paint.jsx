@@ -8,6 +8,7 @@ import { CompactPicker, SketchPicker } from "react-color";
 import Image from "next/image";
 import jsPDF from "jspdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+// step
 export default function Paint({
   pdfDoc,
   pageNumber,
@@ -26,6 +27,9 @@ export default function Paint({
   const drawingRef = useRef(null);
   const drawRef = useRef(null);
   const pdfRef = useRef(null);
+  const [pageIndex, setPageIndex] = useState(
+    sketchInfo.pages.findIndex((el) => el.page === pageNumber)
+  );
   const [drawingCanvas, setDrawingCanvas] = useState(drawingRef.current);
   const [drawCanvas, setDrawCanvas] = useState(drawRef.current);
   // canvases settings
@@ -149,7 +153,7 @@ export default function Paint({
   }, []);
   // shapes holder
   const [shapes, setShapes] = useState(
-    sketchInfo.pages[pageNumber - 1].sketches.shapes
+    sketchInfo.pages[pageIndex].sketches.shapes
   );
   console.log({ fontStyle });
   useEffect(() => {
@@ -178,6 +182,19 @@ export default function Paint({
       });
     }
   }, [shapes]);
+  // draw shapes when canvas and doc render
+  useEffect(() => {
+    if (drawCanvas) {
+      let drawCtx = drawCanvas.getContext("2d");
+      drawCtx.clearRect(0, 0, drawCanvas.width, drawingCanvas.height);
+      setTimeout(() => {
+        shapes.forEach((shape) => {
+          shape.draw(drawCanvas, scale);
+        });
+      }, 400);
+    }
+  }, [loaded]);
+  // draw shapes when scale change
   useEffect(() => {
     if (drawCanvas) {
       let drawCtx = drawCanvas.getContext("2d");
@@ -188,7 +205,7 @@ export default function Paint({
         });
       }, 0);
     }
-  }, [scale, loaded]);
+  }, [scale]);
   // set Opacity variable to opacity/100
   useEffect(() => {
     setRealOpacity(opacity / 100);
@@ -339,7 +356,7 @@ export default function Paint({
           let newHoever = [];
           let newCircleHovered = [];
           shapes.forEach((shape, i) => {
-            if (shape.isHovered(currentX, currentY, drawingCanvas)) {
+            if (shape.isHovered(currentX, currentY, drawingCanvas, scale)) {
               newHoever.push(i);
             }
             if (
@@ -505,11 +522,14 @@ export default function Paint({
     setFinishDrawing(false);
   };
   const handleSave = () => {
+    const pageIndex = sketchInfo.pages.findIndex(
+      (el) => el.page === pageNumber
+    );
     let pages = sketchInfo.pages;
-    let newPage = sketchInfo.pages[pageNumber - 1];
+    let newPage = sketchInfo.pages[pageIndex];
     newPage.edited = true;
-    pages[pageNumber - 1] = newPage;
-    sketchInfo.pages[pageNumber - 1].sketches = { shapes };
+    pages[pageIndex] = newPage;
+    sketchInfo.pages[pageIndex].sketches = { shapes };
     setSketchInfo(sketchInfo);
   };
   const exportPdfPage = () => {

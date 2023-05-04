@@ -1,6 +1,6 @@
 import styled from "styled-components";
-
-const Step0 = ({ setActiveStep }) => {
+// step 0
+export default function StartingPage({ setActiveStep }) {
   return (
     <div className="w-full h-full flex justify-center items-center">
       {/* <Heading>How do you like to upload the Files</Heading> */}
@@ -18,6 +18,4 @@ const Step0 = ({ setActiveStep }) => {
       </button> */}
     </div>
   );
-};
-
-export default Step0;
+}

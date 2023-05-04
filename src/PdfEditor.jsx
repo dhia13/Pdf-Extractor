@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Step0 from "./Components/Step0";
-import Step1 from "./Components/Step1";
-import Step2 from "./Components/Step2";
-import Step3 from "./Components/Step3";
-import Step4 from "./Components/Step4";
+import StartingPage from "./Components/StartingPage";
+import UploadPdfs from "./Components/UploadPdfs";
+import SelectPages from "./Components/SelectPages";
+import DownloadOrEdit from "./Components/DownloadOrEdit";
+import EditPages from "./Components/EditPages";
 import Paint from "./Components/Paint"; // active step 5
-import Mo from "./Components/PaintComponents/Mo";
+import Test from "./Components/PaintComponents/Test";
 const PdfEditor = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -22,17 +22,17 @@ const PdfEditor = () => {
   });
   const handleSelectPageForDrawing = (page) => {
     let newSketchInfo = sketchInfo;
-    newSketchInfo.selectedPage = page + 1;
+    newSketchInfo.selectedPage = page;
     setSketchInfo(newSketchInfo);
     setActiveStep(5);
   };
   return (
     <div className="w-screen h-screen overflow-hidden">
       {/*  upload pdf from computer button*/}
-      {activeStep == 0 && <Step0 setActiveStep={setActiveStep} />}
+      {activeStep == 0 && <StartingPage setActiveStep={setActiveStep} />}
       {/* select pdfs and then press continue */}
       {activeStep == 1 && (
-        <Step1
+        <UploadPdfs
           fileNames={fileNames}
           setFileNames={setFileNames}
           pdfDocs={pdfDocs}
@@ -42,7 +42,7 @@ const PdfEditor = () => {
       )}
       {/* pdfdocs list +  pages list to select for fusion*/}
       {activeStep == 2 && (
-        <Step2
+        <SelectPages
           pdfDocs={pdfDocs}
           setPdfDoc={setPdfDoc}
           setActiveStep={setActiveStep}
@@ -51,7 +51,7 @@ const PdfEditor = () => {
       )}
       {/* download or draw */}
       {activeStep == 3 && (
-        <Step3
+        <DownloadOrEdit
           setSketchInfo={setSketchInfo}
           setActiveStep={setActiveStep}
           pdfDoc={pdfDoc}
@@ -59,16 +59,17 @@ const PdfEditor = () => {
           setFileNames={setFileNames}
         />
       )}
-      {/* select page to draw on */}
+      {/* reorder pages or select a page to draw on */}
       {activeStep == 4 && (
-        <Step4
+        <EditPages
           handleSelectPageForDrawing={handleSelectPageForDrawing}
           sketchInfo={sketchInfo}
           pdfDoc={pdfDoc}
           editedpdfDoc={editedpdfDoc}
+          setSketchInfo={setSketchInfo}
         />
       )}
-      {/* draw canvas */}
+      {/* draw canvas paint */}
       {activeStep == 5 && (
         <Paint
           setSketchInfo={setSketchInfo}
@@ -79,8 +80,9 @@ const PdfEditor = () => {
           editedpdfDoc={editedpdfDoc}
         />
       )}
-      {activeStep == 13 && (
-        <Mo
+      {/* for testing */}
+      {activeStep == 6 && (
+        <Test
           setSketchInfo={setSketchInfo}
           sketchInfo={sketchInfo}
           pdfDoc={pdfDoc}

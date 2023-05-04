@@ -180,7 +180,7 @@ export function Plan(x, y, w, h, color, filled, fillColor, stroke, opacity) {
       }
     }
   };
-  this.isHovered = function (mouseX, mouseY) {
+  this.isHovered = function (mouseX, mouseY, canvas, scale) {
     const x1 = this.x;
     const x2 = this.x + this.w;
     const y1 = this.y;
@@ -282,7 +282,7 @@ export function Rect(x, y, w, h, color, filled, fillColor, stroke, opacity) {
     ctx.stroke();
     ctx.closePath();
   };
-  this.isHovered = function (mouseX, mouseY) {
+  this.isHovered = function (mouseX, mouseY, canvas, scale) {
     const x1 = this.x;
     const x2 = this.x + this.w;
     const y1 = this.y;
@@ -327,7 +327,7 @@ export function Circle(x, y, r, color, filled, fillColor, stroke, opacity) {
     ctx.stroke();
     ctx.closePath();
   };
-  this.isHovered = function (mouseX, mouseY) {
+  this.isHovered = function (mouseX, mouseY, canas, scale) {
     const dx = this.x - mouseX;
     const dy = this.y - mouseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -357,7 +357,7 @@ export function Line(x, y, xb, yb, color, stroke, opacity) {
     ctx.stroke();
     ctx.closePath();
   };
-  this.isHovered = function (Mx, My) {
+  this.isHovered = function (Mx, My, canvas, scale) {
     const tolerance = 5 * scale; // adjust the tolerance as needed
     const distance =
       Math.abs(
@@ -406,7 +406,7 @@ export function Text(
     ctx.globalAlpha = this.opacity;
     ctx.fillText(this.text, this.x * scale, this.y * scale);
   };
-  this.isHovered = function (Mx, My, canvas) {
+  this.isHovered = function (Mx, My, canvas, scale) {
     const ctx = canvas.getContext("2d");
     ctx.font = `${this.fontSize}px Arial`;
     console.log({

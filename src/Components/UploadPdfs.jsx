@@ -2,7 +2,13 @@ import styled from "styled-components";
 import { useRef, useState } from "react";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { PDFDocument } from "pdf-lib";
-const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
+// step 1
+export default function UploadPdfs({
+  fileNames,
+  setFileNames,
+  setPdfDocs,
+  setActiveStep,
+}) {
   const [multiple, setMultiple] = useState(true);
   const handleFileChange = async (event) => {
     const newFileName = [];
@@ -107,9 +113,8 @@ const Step1 = ({ fileNames, setFileNames, setPdfDocs, setActiveStep }) => {
       )}
     </div>
   );
-};
+}
 
-export default Step1;
 const Heading = styled.h1`
   font-family: Roboto;
   font-style: normal;

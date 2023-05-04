@@ -2,7 +2,13 @@ import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import Image from "next/image";
-const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
+// step 2
+export default function SelectPages({
+  pdfDocs,
+  setPdfDoc,
+  setActiveStep,
+  fileNames,
+}) {
   const [selectedPages, setSelectedPages] = useState([]);
   const [extracted, setExtracted] = useState(false);
   const [pages, setPages] = useState([]);
@@ -211,8 +217,7 @@ const Step2 = ({ pdfDocs, setPdfDoc, setActiveStep, fileNames }) => {
       )}
     </div>
   );
-};
-export default Step2;
+}
 
 const Heading = styled.h1`
   font-family: Roboto;

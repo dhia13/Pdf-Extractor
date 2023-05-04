@@ -2,8 +2,14 @@ import styled from "styled-components";
 import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import { Document, Page, pdfjs } from "react-pdf";
-const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
-  console.log({ sketchInfo, pdfDoc });
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+// step 4
+export default function EditPages({
+  sketchInfo,
+  handleSelectPageForDrawing,
+  pdfDoc,
+  setSketchInfo,
+}) {
   const [file, setFile] = useState(null);
   const Doc2File = async () => {
     const newBlob = await pdfDoc.save();
@@ -66,13 +72,29 @@ const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
         null,
         null,
         {
-          pageNumber: i + 1, // add page number to the image options
+          pageNumber: i + 1,
         }
       );
     }
     pdf.save("merged.pdf");
   };
+  const [pages, setPages] = useState(sketchInfo.pages);
+  function handleDragEnd(result) {
+    if (!result.destination) {
+      return;
+    }
 
+    const pagesCopy = [...pages];
+    const [reorderedItem] = pagesCopy.splice(result.source.index, 1);
+    pagesCopy.splice(result.destination.index, 0, reorderedItem);
+    const sketchCopy = sketchInfo;
+    sketchCopy.pages = pagesCopy;
+    setSketchInfo(sketchCopy);
+    setPages(pagesCopy);
+  }
+  const handleViewPage = (id) => {
+    console.log(id);
+  };
   return (
     <div className="w-full h-full relative">
       <div className="w-full h-full flex flex-col justify-center items-center absolute top-0 left-0 z-50">
@@ -84,25 +106,62 @@ const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
         </SubHeading>
         {/* render pages */}
         <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
-          {sketchInfo.pages.map((el, i) => (
-            <li
-              className="flex justify-between items-start font-medium flex-col w-full gap-1"
-              key={i}
-            >
-              <div className="w-full flex justify-between items-center">
-                {`Page ${i}`}
-                <div className="flex justify-center gap-2 items-center cursor-pointer">
-                  <img
-                    src={`/images/${el.edited ? "bluepen" : "pen"}.png`}
-                    width={24}
-                    height={24}
-                    onClick={() => handleSelectPageForDrawing(i)}
-                  />
-                </div>
-              </div>
-              <Divider2 />
-            </li>
-          ))}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="items">
+              {(provided) => (
+                <ul
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="w-full"
+                >
+                  {sketchInfo.pages.map((el, i) => (
+                    <Draggable
+                      key={el.page}
+                      draggableId={el.id.toString()}
+                      index={i}
+                    >
+                      {(provided) => (
+                        <li
+                          className="flex justify-between items-start font-medium flex-col w-full gap-1"
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <div className="w-full flex justify-between items-center">
+                            <div className="flex justify-center items-center gap-4">
+                              <img
+                                src={`/images/eye.png`}
+                                width={24}
+                                height={24}
+                                onClick={() => handleViewPage(el.page)}
+                                className=""
+                              />
+                              {`Page ${i + 1}`}
+                              {`/ original position ${el.page}`}
+                            </div>
+                            <div className="flex justify-center gap-2 items-center cursor-pointer">
+                              <img
+                                src={`/images/${
+                                  el.edited ? "bluepen" : "pen"
+                                }.png`}
+                                width={24}
+                                height={24}
+                                onClick={() =>
+                                  handleSelectPageForDrawing(el.page)
+                                }
+                              />
+                            </div>
+                          </div>
+                          <Divider2 />
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </ul>
+              )}
+            </Droppable>
+          </DragDropContext>
         </PagesDiv>
         <ContinueBtn className="hover:bg-[#0B7189]" onClick={exportPdfPages}>
           Download Edited
@@ -124,8 +183,7 @@ const Step4 = ({ sketchInfo, handleSelectPageForDrawing, pdfDoc }) => {
       </>
     </div>
   );
-};
-export default Step4;
+}
 
 const Heading = styled.h1`
   font-family: Roboto;

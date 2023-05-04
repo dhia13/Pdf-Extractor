@@ -1,12 +1,12 @@
 import styled from "styled-components";
-
-const Step3 = ({
+// step 4
+export default function DownloadOrEdit({
   setActiveStep,
   pdfDoc,
   setPdfDocs,
   setFileNames,
   setSketchInfo,
-}) => {
+}) {
   const handleDownload = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
@@ -21,12 +21,14 @@ const Step3 = ({
   const handleDraw = () => {
     let pages = new Array(pdfDoc.pageCount);
     pages.fill({
+      id: 0,
       page: 0,
       edited: false,
       sketches: { shapes: [] },
     });
     pages = pages.map((page, index) => {
       return {
+        id: index,
         page: index + 1,
         edited: page.edited,
         sketches: page.sketches,
@@ -72,13 +74,12 @@ const Step3 = ({
             handleDraw();
           }}
         >
-          Draw On pdf
+          Reorder pages and draw on them
         </ContinueBtn>
       </div>
     </div>
   );
-};
-export default Step3;
+}
 const Heading = styled.h1`
   font-family: Roboto;
   font-style: normal;
