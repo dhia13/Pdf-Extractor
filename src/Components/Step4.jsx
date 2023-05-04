@@ -158,60 +158,6 @@ const Divider2 = styled.div`
   margin-bottom: 10px;
   width: 100%;
 `;
-const StyledCheckbox = styled.input.attrs({
-  type: "checkbox",
-})`
-  width: 15px;
-  height: 15px;
-  float: right;
-`;
-const PdfTitle = styled.p`
-  display: inline-block;
-  color: black;
-  font-weight: 700;
-  margin-bottom: 10px;
-  width: 80%;
-  white-space: nowrap;
-`;
-const TabOptions = styled.button`
-  flex: 0 0 auto;
-  background-color: white;
-  overflow: hidden;
-  border-radius: 20px;
-  cursor: pointer;
-  color: gray;
-  height: 35px;
-  padding: 0 10px 0 10px;
-  white-space: nowrap;
-  font-weight: bold;
-  :focus,
-  :active {
-    outline: none;
-  }
-`;
-const TabDiv = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  white-space: nowrap;
-  height: 70px;
-  overflow-x: scroll;
-  width: 100%;
-  gap: 20px;
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background-color: #f5f5f5;
-  }
-  ::-webkit-scrollbar {
-    height: 7px !important;
-    background-color: #f5f5f5;
-  }
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: #5fee8a;
-  }
-`;
 const PagesDiv = styled.div`
   overflow-y: auto;
   display: flex;

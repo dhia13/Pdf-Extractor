@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import { Document, Page } from 'react-pdf';
 import { Document, Page, pdfjs } from "react-pdf";
-import { Rect, Circle, Line, Plan } from "./PaintComponents/ShapesOOP";
+import { Rect, Circle, Line, Plan, Text } from "./PaintComponents/ShapesOOP";
 import ToolIcon from "./PaintComponents/ToolIcon";
 import InputSlider from "./PaintComponents/Slider";
 import { CompactPicker, SketchPicker } from "react-color";
@@ -54,6 +54,7 @@ export default function Paint({
   // shape detection
   const [hovered, setHovered] = useState(false);
   const [hoveredShapes, setHoveredShapes] = useState([]);
+  // split vars
   const [spliting, setSpliting] = useState(false);
   const [splitStep, setSplitStep] = useState(0);
   const [splitDirection, setSplitDirection] = useState("");
@@ -62,6 +63,76 @@ export default function Paint({
   const [splitCircleShapes, setSplitCircleShapes] = useState(false);
   const [splitCursorDirection, setSplitCursorDirection] = useState("v");
   const [movingSplit, setMovingSplit] = useState(false);
+  // writing ar
+  const [writing, setWriting] = useState(false);
+  const [fontSize, setFontSize] = useState(16);
+  const [fontWeight, setFontWeight] = useState(300);
+  const [fontStyle, setFontStyle] = useState("normal");
+  const [text, setText] = useState("");
+  const [inputX, setInputX] = useState(0);
+  const [inputY, setInputY] = useState(0);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (writing && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current.focus();
+      }, 0);
+    }
+  }, [writing, scale, color, opacity, fontSize, stroke, fontWeight, fontStyle]);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.width = `${inputRef.current.scrollWidth}px`;
+    }
+  }, [text, fontSize, fontWeight, fontStyle]);
+  function handleCheckboxChange() {
+    setFontStyle(fontStyle == "normal" ? "italic" : "normal");
+  }
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      if (text != "") {
+        setWriting(false);
+        setText("");
+        let text1 = new Text(
+          startX,
+          startY,
+          text,
+          fontSize,
+          fontWeight,
+          fontStyle,
+          color,
+          opacity
+        );
+        text1.draw(drawCanvas, scale);
+        let newShapes = [...shapes, text1]; // create new array with new shape added
+        setShapes(newShapes);
+      }
+    }
+    if (e.keyCode === 27) {
+      setWriting(false);
+      setText("");
+    }
+  };
+  const handleSubmitText = () => {
+    if (text != "") {
+      setWriting(false);
+      setText("");
+      let text1 = new Text(
+        startX,
+        startY,
+        text,
+        fontSize,
+        fontWeight,
+        fontStyle,
+        color,
+        opacity
+      );
+      text1.draw(drawCanvas, scale);
+      let newShapes = [...shapes, text1]; // create new array with new shape added
+      setShapes(newShapes);
+    } else {
+      setWriting(false);
+    }
+  };
   // mouse down coordinations
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
@@ -80,6 +151,7 @@ export default function Paint({
   const [shapes, setShapes] = useState(
     sketchInfo.pages[pageNumber - 1].sketches.shapes
   );
+  console.log({ fontStyle });
   useEffect(() => {
     if (pdfRef) {
       const el = pdfRef.current;
@@ -128,6 +200,11 @@ export default function Paint({
     // start drawing
     if (tool == "draw" && splitStep == 0 && !splitCircleHovered) {
       setDrawing(true);
+    }
+    if (drawTool == "text") {
+      setWriting(true);
+      setInputX(e.clientX - rect.left);
+      setInputY(e.clientY - rect.top);
     }
     // fill shapes
     if (drawTool == "fill" && hovered) {
@@ -262,7 +339,7 @@ export default function Paint({
           let newHoever = [];
           let newCircleHovered = [];
           shapes.forEach((shape, i) => {
-            if (shape.isHovered(currentX, currentY)) {
+            if (shape.isHovered(currentX, currentY, drawingCanvas)) {
               newHoever.push(i);
             }
             if (
@@ -492,6 +569,14 @@ export default function Paint({
     <div className="relative w-full h-full">
       {/* hidden menus */}
       <>
+        {writing && (
+          <>
+            <div
+              className="w-screen h-screen absolute top-0 left-0 z-50"
+              onClick={() => handleSubmitText()}
+            ></div>
+          </>
+        )}
         {showColor && (
           <div
             className="absolute top-0 left-0 w-screen h-screen z-50"
@@ -547,7 +632,7 @@ export default function Paint({
         )}
       </>
       {/* top bar */}
-      <div className="flex justify-start items-center h-[110px] gap-4 bg-cyan-400 w-full absolute top-0 left-0">
+      <div className="flex justify-start items-center h-[110px] gap-4 bg-cyan-400 w-full absolute top-0 left-0 z-50">
         <img
           src="/images/back.png"
           alt="back"
@@ -660,10 +745,67 @@ export default function Paint({
             />
           )}
         </div>
+        {/* text settings  */}
+        {writing && (
+          <div className="w-[300px] h-full bg-red-200 z-50">
+            <div>
+              <label htmlFor="fontSizeSelect">Font Size:</label>
+              <select
+                id="fontSizeSelect"
+                value={fontSize}
+                onChange={(e) => setFontSize(e.target.value)}
+              >
+                <option value={8}>8</option>
+                <option value={9}>9</option>
+                <option value={11}>11</option>
+                <option value={14}>14</option>
+                <option value={16}>16</option>
+                <option value={18}>18</option>
+                <option value={20}>20</option>
+                <option value={22}>22</option>
+                <option value={24}>24</option>
+                <option value={26}>26</option>
+                <option value={28}>28</option>
+                <option value={32}>32</option>
+                <option value={36}>36</option>
+                <option value={42}>42</option>
+                <option value={72}>72</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="fontSizeSelect">Font Weight:</label>
+              <select
+                id="fontSizeSelect"
+                value={fontWeight}
+                onChange={(e) => setFontWeight(e.target.value)}
+              >
+                <option value={100}>100</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={500}>500</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={800}>800</option>
+                <option value={900}>900</option>
+              </select>
+            </div>
+            <>
+              <img
+                src={`/images/${
+                  fontStyle == "normal" ? "fontStyleItalic" : "fontStyleNormal"
+                }.png`}
+                alt="fontStyle"
+                className="w-[32px] h-[32px] rounded-md"
+                onClick={handleCheckboxChange}
+              />
+            </>
+          </div>
+        )}
       </div>
       {/* left bar */}
       <div
-        className={`flex flex-col justify-start items-center w-[80px] h-full top-[110px] left-0 bg-cyan-400 absolute gap-4`}
+        className={`flex flex-col justify-start items-center w-[80px] h-full top-[110px] left-0 bg-cyan-400 absolute gap-4 z-50`}
       >
         <ToolIcon
           tool="move"
@@ -712,7 +854,7 @@ export default function Paint({
           setDrawTool={(tool) => {
             setDrawTool(tool), setTool("draw");
           }}
-          disable={true}
+          disable={false}
         />
         <ToolIcon
           tool="plan"
@@ -772,8 +914,7 @@ export default function Paint({
           width={PW}
           height={PH}
           className={`z-30 absolute top-0 left-0`}
-          onLoadSuccess={() => setLoaded(!loaded)}
-        />
+        ></canvas>
         {/* paintings canvas */}
         <canvas
           ref={drawRef}
@@ -781,7 +922,6 @@ export default function Paint({
           onMouseMove={(e) => handleMouseMove(e)}
           onMouseUp={(e) => handleMouseUp(e)}
           onMouseLeave={(e) => handleMouseLeave(e)}
-          onLoadSuccess={() => setLoaded(!loaded)}
           width={PW}
           scale={scale}
           height={PH}
@@ -891,6 +1031,27 @@ export default function Paint({
               </div>
             )}
           </div>
+        )}
+        {writing && (
+          <>
+            <input
+              className="outline-none bg-transparent absolute -translate-y-[73%] z-40"
+              style={{
+                width: "4px",
+                fontSize: `${fontSize * scale}px`,
+                color: color,
+                top: inputY,
+                left: inputX,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+              }}
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              ref={inputRef}
+              onKeyDown={handleKeyPress}
+            />
+          </>
         )}
       </div>
     </div>

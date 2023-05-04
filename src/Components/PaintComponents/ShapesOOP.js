@@ -358,7 +358,7 @@ export function Line(x, y, xb, yb, color, stroke, opacity) {
     ctx.closePath();
   };
   this.isHovered = function (Mx, My) {
-    const tolerance = 5; // adjust the tolerance as needed
+    const tolerance = 5 * scale; // adjust the tolerance as needed
     const distance =
       Math.abs(
         (this.xb - this.x) * (this.y - My) - (this.x - Mx) * (this.yb - this.y)
@@ -374,5 +374,63 @@ export function Line(x, y, xb, yb, color, stroke, opacity) {
     this.y += ny;
     this.xb += nx;
     this.yb += ny;
+  };
+}
+export function Text(
+  x,
+  y,
+  text,
+  fontSize,
+  fontWeight,
+  fontStyle,
+  color,
+  opacity
+) {
+  this.x = x;
+  this.y = y;
+  this.text = text;
+  this.fontSize = fontSize;
+  this.fontWeight = fontWeight;
+  this.fontStyle = fontStyle;
+  this.color = color;
+  this.opacity = opacity;
+  this.draw = function (canvas, scale) {
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = this.color;
+    const fontStyle = this.fontStyle || "normal";
+    const fontWeight = this.fontWeight || "normal";
+    const fontSize = this.fontSize * scale;
+    const fontFamily = this.fontFamily || "Arial";
+    const font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+    ctx.font = font;
+    ctx.globalAlpha = this.opacity;
+    ctx.fillText(this.text, this.x * scale, this.y * scale);
+  };
+  this.isHovered = function (Mx, My, canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.font = `${this.fontSize}px Arial`;
+    console.log({
+      Mx,
+      My,
+      x: this.x,
+      y: this.y,
+      textWidth: ctx.measureText(this.text).width,
+    });
+    console.log(
+      Mx >= this.x &&
+        Mx <= this.x + ctx.measureText(this.text).width &&
+        My >= this.y - this.fontSize &&
+        My <= this.y
+    );
+    return (
+      Mx >= this.x &&
+      Mx <= this.x + ctx.measureText(this.text).width &&
+      My >= this.y - this.fontSize &&
+      My <= this.y
+    );
+  };
+  this.move = function (nx, ny) {
+    this.x += nx;
+    this.y += ny;
   };
 }

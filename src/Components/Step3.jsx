@@ -7,8 +7,6 @@ const Step3 = ({
   setFileNames,
   setSketchInfo,
 }) => {
-  console.log(pdfDoc.getPage(1));
-
   const handleDownload = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
