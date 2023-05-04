@@ -155,7 +155,6 @@ export default function Paint({
   const [shapes, setShapes] = useState(
     sketchInfo.pages[pageIndex].sketches.shapes
   );
-  console.log({ fontStyle });
   useEffect(() => {
     if (pdfRef) {
       const el = pdfRef.current;

@@ -10,8 +10,6 @@ export default function EditPages({
   pdfDoc,
   setSketchInfo,
 }) {
-  console.log(sketchInfo);
-
   const [file, setFile] = useState(null);
   const [showPdf, setShowPdf] = useState(false);
   const Doc2File = async () => {
