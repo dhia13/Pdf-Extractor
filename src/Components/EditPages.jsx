@@ -10,7 +10,10 @@ export default function EditPages({
   pdfDoc,
   setSketchInfo,
 }) {
+  console.log(sketchInfo);
+
   const [file, setFile] = useState(null);
+  const [showPdf, setShowPdf] = useState(false);
   const Doc2File = async () => {
     const newBlob = await pdfDoc.save();
     const file = new File([newBlob], "testssPdf.pdf", {
@@ -93,7 +96,8 @@ export default function EditPages({
     setPages(pagesCopy);
   }
   const handleViewPage = (id) => {
-    console.log(id);
+    setShowPdf(true);
+    setPage(id);
   };
   return (
     <div className="w-full h-full relative">
@@ -134,7 +138,7 @@ export default function EditPages({
                                 width={24}
                                 height={24}
                                 onClick={() => handleViewPage(el.page)}
-                                className=""
+                                className="cursor-pointer"
                               />
                               {`Page ${i + 1}`}
                               {`/ original position ${el.page}`}
@@ -170,8 +174,16 @@ export default function EditPages({
           Download Raw
         </ContinueBtn>
       </div>
-      <>
-        <Document file={file} className="opacity-0 absolute top-0 left-0 z-10">
+      <div
+        className={`${
+          showPdf ? "opacity-1 z-50" : "opacity-0 z-10 "
+        } absolute top-0 left-0 w-screen h-screen flex justify-center items-center `}
+      >
+        <div
+          className="absolute top-0 w-screen h-screen bg-gray-600 opacity-40 left-0"
+          onClick={() => setShowPdf(false)}
+        ></div>
+        <Document file={file}>
           <Page
             pageNumber={page}
             canvasRef={pdfRef}
@@ -180,7 +192,7 @@ export default function EditPages({
             // onLoadSuccess={() => setLoaded(!loaded)}
           />
         </Document>
-      </>
+      </div>
     </div>
   );
 }
