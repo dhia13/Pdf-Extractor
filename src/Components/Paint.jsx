@@ -651,7 +651,7 @@ export default function Paint({
         )}
       </>
       {/* top bar */}
-      <div className="flex justify-start items-center h-[110px] gap-4 bg-cyan-400 w-full absolute top-0 left-0 z-50">
+      <div className="flex justify-start items-center h-[110px] gap-4 bg-[#009CE0] w-full absolute top-0 left-0 z-50">
         <img
           src="/images/back.png"
           alt="back"
@@ -824,7 +824,7 @@ export default function Paint({
       </div>
       {/* left bar */}
       <div
-        className={`flex flex-col justify-start items-center w-[80px] h-full top-[110px] left-0 bg-cyan-400 absolute gap-4 z-50`}
+        className={`flex flex-col justify-start items-center w-[80px] h-full top-[110px] left-0 bg-[#009CE0] absolute gap-4 z-50`}
       >
         <ToolIcon
           tool="move"
