@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StartingPage from "./Components/StartingPage";
 import UploadPdfs from "./Components/UploadPdfs";
 import SelectPages from "./Components/SelectPages";
@@ -9,9 +9,35 @@ import Test from "./Components/PaintComponents/Test";
 const PdfEditor = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [pdfDoc, setPdfDoc] = useState(null);
+  const [settings, setSettings] = useState(null);
+  const [autoSave, setAutoSave] = useState(false);
+  useEffect(() => {
+    const settingsJSON = localStorage.getItem("settings");
+    if (settingsJSON) {
+      const settings = JSON.parse(settingsJSON);
+      setSettings(settings);
+      setAutoSave(settings.autoSave);
+    } else {
+      const settings = {
+        scale: 2,
+        opacity: 1,
+        stroke: 4,
+        autoSave: false,
+        tool: "draw",
+        drawTool: "rect",
+        fontSize: 16,
+        fontWeight: 300,
+        fontStyle: "normal",
+        color: "black",
+      };
+      const settingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", settingsJSON);
+    }
+  }, []);
   const [editedpdfDoc, setEditedPdfDoc] = useState(null);
   const [fileNames, setFileNames] = useState([]);
   const [pdfDocs, setPdfDocs] = useState([]);
+
   const [sketchInfo, setSketchInfo] = useState({
     pdfFile: pdfDoc,
     edited: false,
@@ -67,6 +93,8 @@ const PdfEditor = () => {
           pdfDoc={pdfDoc}
           editedpdfDoc={editedpdfDoc}
           setSketchInfo={setSketchInfo}
+          autoSave={autoSave}
+          setAutoSave={setAutoSave}
         />
       )}
       {/* draw canvas paint */}
@@ -78,6 +106,9 @@ const PdfEditor = () => {
           pageNumber={sketchInfo.selectedPage}
           setActiveStep={setActiveStep}
           editedpdfDoc={editedpdfDoc}
+          autoSave={autoSave}
+          setAutoSave={setAutoSave}
+          settings={settings}
         />
       )}
       {/* for testing */}

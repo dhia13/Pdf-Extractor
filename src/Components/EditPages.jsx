@@ -9,6 +9,8 @@ export default function EditPages({
   handleSelectPageForDrawing,
   pdfDoc,
   setSketchInfo,
+  autoSave,
+  setAutoSave,
 }) {
   const [file, setFile] = useState(null);
   const [showPdf, setShowPdf] = useState(false);
@@ -19,6 +21,13 @@ export default function EditPages({
     });
     setFile(file);
   };
+  useEffect(() => {
+    const settingsJSON = localStorage.getItem("settings");
+    const settings = JSON.parse(settingsJSON);
+    settings.autoSave = autoSave;
+    const newSettingsJSON = JSON.stringify(settings);
+    localStorage.setItem("settings", newSettingsJSON);
+  }, [autoSave]);
   useEffect(() => {
     Doc2File();
   }, []);
@@ -106,6 +115,15 @@ export default function EditPages({
           Note : (you need to save drawings and plans before you go back or
           enable auto save )
         </SubHeading>
+        <div className="flex justify-center items-center gap-4">
+          <SubHeading>Auto Save Edit</SubHeading>
+          <input
+            className="w-[16px] h-[16px] cursor-pointer"
+            type="checkbox"
+            checked={autoSave}
+            onChange={() => setAutoSave(!autoSave)}
+          />
+        </div>
         {/* render pages */}
         <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -129,7 +147,7 @@ export default function EditPages({
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <div className="w-full flex justify-between items-center">
+                          <div className="w-full flex justify-between items-center mb-2">
                             <div className="flex justify-center items-center gap-4">
                               <img
                                 src={`/images/eye.png`}
@@ -144,17 +162,17 @@ export default function EditPages({
                             <div className="flex justify-center gap-2 items-center cursor-pointer">
                               <img
                                 src={`/images/${
-                                  el.edited ? "bluepen" : "pen"
+                                  el.edited ? "edited" : "edit"
                                 }.png`}
-                                width={24}
-                                height={24}
+                                width={20}
+                                height={20}
                                 onClick={() =>
                                   handleSelectPageForDrawing(el.page)
                                 }
                               />
                             </div>
                           </div>
-                          <Divider2 />
+                          <Divider />
                         </li>
                       )}
                     </Draggable>
@@ -220,10 +238,9 @@ const ContinueBtn = styled.button`
   margin-bottom: 10px;
   width: 400px;
 `;
-const Divider2 = styled.div`
+const Divider = styled.div`
   border-bottom: 1px solid lightgray;
-  // margin-top: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   width: 100%;
 `;
 const PagesDiv = styled.div`

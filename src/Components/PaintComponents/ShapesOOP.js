@@ -401,9 +401,9 @@ export function Text(
     const fontWeight = this.fontWeight || "normal";
     const fontSize = this.fontSize * scale;
     const fontFamily = this.fontFamily || "Arial";
+    ctx.globalAlpha = this.opacity;
     const font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
     ctx.font = font;
-    ctx.globalAlpha = this.opacity;
     ctx.fillText(this.text, this.x * scale, this.y * scale);
   };
   this.isHovered = function (Mx, My, canvas, scale) {

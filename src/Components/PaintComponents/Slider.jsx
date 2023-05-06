@@ -30,7 +30,7 @@ export default function InputSlider({ title, value, setValue, show, setShow }) {
         <p className="text-base font-semibold">{title}</p>
         <div>
           <input
-            className="w-[58px] h-[26px] rounded-md pl-2 text-black border border-black"
+            className="w-[46px] h-[26px] rounded-md pl-2 text-black border border-black"
             value={value}
             size="small"
             onChange={handleInputChange}

@@ -15,7 +15,10 @@ export default function Paint({
   setActiveStep,
   setSketchInfo,
   sketchInfo,
+  autoSave,
+  settings,
 }) {
+  console.log(settings);
   // tools
   const replaceElementInArray = (index, newShape) => {
     const newShapes = [...shapes]; // Create a copy of the original array
@@ -43,12 +46,12 @@ export default function Paint({
   const [opacitySlider, setOpacitySlider] = useState(false);
   // generals
   const [scale, setScale] = useState(2);
-  const [tool, setTool] = useState("draw");
-  const [drawTool, setDrawTool] = useState("plan");
-  const [stroke, setStroke] = useState(3);
-  const [opacity, setOpacity] = useState(100);
-  const [Opacity, setRealOpacity] = useState(opacity / 100);
-  const [color, setColor] = useState("red");
+  const [tool, setTool] = useState(settings.tool);
+  const [drawTool, setDrawTool] = useState(settings.drawTool);
+  const [stroke, setStroke] = useState(settings.stroke);
+  const [opacity, setOpacity] = useState(settings.opacity * 100);
+  const [Opacity, setRealOpacity] = useState(settings.opacity);
+  const [color, setColor] = useState(settings.color);
   // drawing steps
   const [drawing, setDrawing] = useState(false);
   const [finishDrawing, setFinishDrawing] = useState(false);
@@ -69,12 +72,65 @@ export default function Paint({
   const [movingSplit, setMovingSplit] = useState(false);
   // writing ar
   const [writing, setWriting] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
-  const [fontWeight, setFontWeight] = useState(300);
-  const [fontStyle, setFontStyle] = useState("normal");
+  const [fontSize, setFontSize] = useState(settings.fontSize);
+  const [fontWeight, setFontWeight] = useState(settings.fontWeight);
+  const [fontStyle, setFontStyle] = useState(settings.fontStyle);
   const [text, setText] = useState("");
   const [inputX, setInputX] = useState(0);
   const [inputY, setInputY] = useState(0);
+  // save settings
+  useEffect(() => {
+    if (settings.scale !== scale) {
+      settings.scale = scale;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.Opacity !== Opacity) {
+      settings.opacity = Opacity;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.color !== color) {
+      settings.color = color;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.drawTool !== drawTool) {
+      settings.drawTool = drawTool;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.fontSize !== fontSize) {
+      settings.fontSize = fontSize;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.stroke !== stroke) {
+      settings.stroke = stroke;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.tool !== tool) {
+      settings.tool = tool;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+    if (settings.fontWeight !== fontWeight) {
+      settings.fontWeight = fontWeight;
+      const newSettingsJSON = JSON.stringify(settings);
+      localStorage.setItem("settings", newSettingsJSON);
+    }
+  }, [
+    scale,
+    Opacity,
+    color,
+    drawTool,
+    fontSize,
+    fontStyle,
+    fontWeight,
+    stroke,
+    tool,
+  ]);
   const inputRef = useRef(null);
   useEffect(() => {
     if (writing && inputRef.current) {
@@ -209,6 +265,12 @@ export default function Paint({
   useEffect(() => {
     setRealOpacity(opacity / 100);
   }, [opacity]);
+  // auto save
+  useEffect(() => {
+    if (autoSave) {
+      handleSave();
+    }
+  }, [shapes]);
   const handleMouseDown = (e) => {
     const rect = drawingCanvas.getBoundingClientRect();
     setStartX((e.clientX - rect.left) / scale);
@@ -662,13 +724,16 @@ export default function Paint({
           }}
           className=" ml-4 cursor-pointer"
         />
-        <ToolIcon
-          tool="save"
-          drawTool={tool}
-          setDrawTool={handleSave}
-          disable={false}
-          className={"ml-2"}
-        />
+        <div
+          className={` w-[50px] cursor-pointer h-[50px] rounded-md flex justify-center items-center hover:bg-slate-300 shadow-md
+            ${autoSave ? "bg-blue-200 hover:bg-blue-300" : "bg-white "}`}
+          onClick={() => {
+            autoSave ? handleSave() : "";
+          }}
+          title={autoSave ? "auto save enabled" : "save"} // added title attribute to display tooltip
+        >
+          <img width={32} height={32} src={`/images/save.png`} alt={tool} />
+        </div>
         <ToolIcon
           tool="download"
           drawTool={tool}
@@ -678,8 +743,8 @@ export default function Paint({
         {/* scale */}
         <div className="flex justify-center items-center gap-2">
           <Image
-            width={24}
-            height={24}
+            width={20}
+            height={20}
             src={`/images/zoomOut.png`}
             alt="zoonOut"
             className="cursor-pointer"
@@ -694,12 +759,12 @@ export default function Paint({
           <input
             title="stroke"
             value={scale}
-            className="w-[58px] h-[26px] rounded-md pl-2 text-black border border-black"
+            className="w-[46px] h-[26px] rounded-md pl-2 text-black border border-black"
             onChange={(e) => setStroke(e.target.value)}
           />
           <Image
-            width={24}
-            height={24}
+            width={20}
+            height={20}
             src={`/images/zoomIn.png`}
             alt="zoomIn"
             className="cursor-pointer"
@@ -717,8 +782,8 @@ export default function Paint({
         {/* stroke */}
         <div className="flex justify-center items-center gap-2">
           <Image
-            width={32}
-            height={32}
+            width={20}
+            height={20}
             src={`/images/minus.png`}
             alt="arrow"
             className="cursor-pointer"
@@ -733,12 +798,12 @@ export default function Paint({
           <input
             title="stroke"
             value={stroke}
-            className="w-[58px] h-[26px] rounded-md pl-2 text-black border border-black"
+            className="w-[46px] h-[26px] rounded-md pl-2 text-black border border-black"
             onChange={(e) => setStroke(e.target.value)}
           />
           <Image
-            width={24}
-            height={24}
+            width={20}
+            height={20}
             src={`/images/plus.png`}
             alt="arrow"
             className="cursor-pointer"
@@ -750,7 +815,7 @@ export default function Paint({
         {/* color changer */}
         <div className="relative flex justify-center items-center gap-4">
           <div
-            className={`w-[48px] h-[48px] z-60 border border-black z-50 shadow-md`}
+            className={`w-[36px] h-[36px] z-60 border border-black z-50 shadow-sm`}
             style={{ background: color, borderRadius: 4, cursor: "pointer" }}
             onClick={() => setShowColor(true)}
           ></div>
@@ -766,8 +831,8 @@ export default function Paint({
         </div>
         {/* text settings  */}
         {writing && (
-          <div className="w-[300px] h-full bg-red-200 z-50">
-            <div>
+          <div className="w-[175px] h-full z-50 flex justify-center items-start flex-col gap-2 px-3 border-l border-r border-gray-400">
+            <div className="flex w-full justify-between items-start">
               <label htmlFor="fontSizeSelect">Font Size:</label>
               <select
                 id="fontSizeSelect"
@@ -791,7 +856,7 @@ export default function Paint({
                 <option value={72}>72</option>
               </select>
             </div>
-            <div>
+            <div className="flex w-full justify-between items-start">
               <label htmlFor="fontSizeSelect">Font Weight:</label>
               <select
                 id="fontSizeSelect"
@@ -811,11 +876,11 @@ export default function Paint({
             </div>
             <>
               <img
-                src={`/images/${
-                  fontStyle == "normal" ? "fontStyleItalic" : "fontStyleNormal"
-                }.png`}
+                src={`/images/fontStyleNormal.png`}
                 alt="fontStyle"
-                className="w-[32px] h-[32px] rounded-md"
+                className={`w-[24px] h-[24px] border border-black rounded-md cursor-pointer ${
+                  fontStyle == "normal" ? "bg-white" : "bg-blue-200"
+                }`}
                 onClick={handleCheckboxChange}
               />
             </>
