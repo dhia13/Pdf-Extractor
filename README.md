@@ -12,9 +12,17 @@ functionality
 sorry for the simple ui and lack of responsivness after all this is a side project 
 screen shots 
 [![pdfMod1.png](https://i.postimg.cc/QdmHgyzg/pdfMod1.png)](https://postimg.cc/v41Yb3bD)
-![alt text](https://postimg.cc/XrTVJdYL)
-![alt text](https://postimg.cc/HctHBN4vL)
-![alt text](https://postimg.cc/0K2v3CVk)
+
+
+[![pdfMod2.png](https://i.postimg.cc/mrrhmSxv/pdfMod2.png)](https://postimg.cc/XrTVJdYL)
+
+
+[![pdfMod3.png](https://i.postimg.cc/fLGLTn3s/pdfMod3.png)](https://postimg.cc/HctHBN4v)
+
+
+[![pdfMod4.png](https://i.postimg.cc/1XDz8C6q/pdfMod4.png)](https://postimg.cc/0K2v3CVk)
+
+
 this project was made using next pdf-lib tailwind styled components
 to run this project localy just install packages and then run dev 
  
