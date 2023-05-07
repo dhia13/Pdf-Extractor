@@ -44,7 +44,7 @@ export default function Paint({
   const [zoomSlider, setZoomSlider] = useState(false);
   const [opacitySlider, setOpacitySlider] = useState(false);
   // generals
-  const [scale, setScale] = useState(settings.scale);
+  const [scale, setScale] = useState(1);
   const [tool, setTool] = useState(settings.tool);
   const [drawTool, setDrawTool] = useState(settings.drawTool);
   const [stroke, setStroke] = useState(settings.stroke);
@@ -79,11 +79,11 @@ export default function Paint({
   const [inputY, setInputY] = useState(0);
   // save settings
   useEffect(() => {
-    if (settings.scale !== scale) {
-      settings.scale = scale;
-      const newSettingsJSON = JSON.stringify(settings);
-      localStorage.setItem("settings", newSettingsJSON);
-    }
+    // if (settings.1 !== 1) {
+    //   settings.1 = 1;
+    //   const newSettingsJSON = JSON.stringify(settings);
+    //   localStorage.setItem("settings", newSettingsJSON);
+    // }
     if (settings.Opacity !== Opacity) {
       settings.opacity = Opacity;
       const newSettingsJSON = JSON.stringify(settings);
@@ -120,7 +120,7 @@ export default function Paint({
       localStorage.setItem("settings", newSettingsJSON);
     }
   }, [
-    scale,
+    1,
     Opacity,
     color,
     drawTool,
@@ -137,7 +137,7 @@ export default function Paint({
         inputRef.current.focus();
       }, 0);
     }
-  }, [writing, scale, color, opacity, fontSize, stroke, fontWeight, fontStyle]);
+  }, [writing, 1, color, opacity, fontSize, stroke, fontWeight, fontStyle]);
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.width = `${inputRef.current.scrollWidth}px`;
@@ -161,7 +161,7 @@ export default function Paint({
           color,
           opacity
         );
-        text1.draw(drawCanvas, scale);
+        text1.draw(drawCanvas, 1);
         let newShapes = [...shapes, text1]; // create new array with new shape added
         setShapes(newShapes);
       }
@@ -185,7 +185,7 @@ export default function Paint({
         color,
         opacity
       );
-      text1.draw(drawCanvas, scale);
+      text1.draw(drawCanvas, 1);
       let newShapes = [...shapes, text1]; // create new array with new shape added
       setShapes(newShapes);
     } else {
@@ -220,19 +220,19 @@ export default function Paint({
         setPH(h);
       }
     }
-  }, [pdfRef, scale, loaded]);
+  }, [pdfRef, 1, loaded]);
   // set canvases to variable
   useEffect(() => {
     setDrawingCanvas(drawingRef.current);
     setDrawCanvas(drawRef.current);
   }, [drawingRef, drawRef]);
-  // draw shapes when shapes or scale changes
+  // draw shapes when shapes or 1 changes
   useEffect(() => {
     if (drawCanvas) {
       let drawCtx = drawCanvas.getContext("2d");
       drawCtx.clearRect(0, 0, drawCanvas.width, drawingCanvas.height);
       shapes.forEach((shape) => {
-        shape.draw(drawCanvas, scale);
+        shape.draw(drawCanvas, 1);
       });
     }
   }, [shapes]);
@@ -243,23 +243,23 @@ export default function Paint({
       drawCtx.clearRect(0, 0, drawCanvas.width, drawingCanvas.height);
       setTimeout(() => {
         shapes.forEach((shape) => {
-          shape.draw(drawCanvas, scale);
+          shape.draw(drawCanvas, 1);
         });
       }, 400);
     }
   }, [loaded]);
-  // draw shapes when scale change
+  // draw shapes when 1 change
   useEffect(() => {
     if (drawCanvas) {
       let drawCtx = drawCanvas.getContext("2d");
       drawCtx.clearRect(0, 0, drawCanvas.width, drawingCanvas.height);
       setTimeout(() => {
         shapes.forEach((shape) => {
-          shape.draw(drawCanvas, scale);
+          shape.draw(drawCanvas, 1);
         });
       }, 0);
     }
-  }, [scale]);
+  }, [1]);
   // set Opacity variable to opacity/100
   useEffect(() => {
     setRealOpacity(opacity / 100);
@@ -272,8 +272,8 @@ export default function Paint({
   }, [shapes]);
   const handleMouseDown = (e) => {
     const rect = drawingCanvas.getBoundingClientRect();
-    setStartX((e.clientX - rect.left) / scale);
-    setStartY((e.clientY - rect.top) / scale);
+    setStartX((e.clientX - rect.left) / 1);
+    setStartY((e.clientY - rect.top) / 1);
     // start drawing
     if (tool == "draw" && splitStep == 0 && !splitCircleHovered) {
       setDrawing(true);
@@ -314,7 +314,7 @@ export default function Paint({
       let newShapes = [...shapes]; // create new array with new shape added
       newShapes.splice(hoveredShapes[0], 1);
       let newShape = shapes[hoveredShapes[0]];
-      newShape.draw(drawingCanvas, scale);
+      newShape.draw(drawingCanvas, 1);
       setMovingObject(newShape);
       setShapes(newShapes);
     }
@@ -327,7 +327,7 @@ export default function Paint({
       let newShapes = [...shapes]; // create new array with new shape added
       newShapes.splice(splitCircleShapes[0], 1);
       let newShape = shapes[splitCircleShapes[0]];
-      newShape.draw(drawingCanvas, scale);
+      newShape.draw(drawingCanvas, 1);
       setMovingObject(newShape);
       setShapes(newShapes);
     }
@@ -338,8 +338,8 @@ export default function Paint({
       if (drawingCanvas) {
         let ctx = drawingCanvas.getContext("2d");
         const rect = drawingCanvas.getBoundingClientRect();
-        let currentX = (e.clientX - rect.left) / scale;
-        let currentY = (e.clientY - rect.top) / scale;
+        let currentX = (e.clientX - rect.left) / 1;
+        let currentY = (e.clientY - rect.top) / 1;
         // draw shapes
         if (drawing) {
           ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
@@ -358,7 +358,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              rect.draw(drawingCanvas, scale);
+              rect.draw(drawingCanvas, 1);
               break;
             case "plan":
               let plan = new Plan(
@@ -372,7 +372,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              plan.draw(drawingCanvas, scale);
+              plan.draw(drawingCanvas, 1);
               break;
             case "circle":
               let r = Math.sqrt(
@@ -388,7 +388,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              circle.draw(drawingCanvas, scale);
+              circle.draw(drawingCanvas, 1);
               break;
             case "line":
               let line = new Line(
@@ -400,7 +400,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              line.draw(drawingCanvas, scale);
+              line.draw(drawingCanvas, 1);
               break;
             case "pen":
             default:
@@ -416,7 +416,7 @@ export default function Paint({
           let newHoever = [];
           let newCircleHovered = [];
           shapes.forEach((shape, i) => {
-            if (shape.isHovered(currentX, currentY, drawingCanvas, scale)) {
+            if (shape.isHovered(currentX, currentY, drawingCanvas, 1)) {
               newHoever.push(i);
             }
             if (
@@ -451,19 +451,19 @@ export default function Paint({
         if (moving) {
           ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
           movingObject.move(currentX - startX, currentY - startY);
-          movingObject.draw(drawingCanvas, scale);
+          movingObject.draw(drawingCanvas, 1);
           const rect = drawingCanvas.getBoundingClientRect();
-          setStartX((e.clientX - rect.left) / scale);
-          setStartY((e.clientY - rect.top) / scale);
+          setStartX((e.clientX - rect.left) / 1);
+          setStartY((e.clientY - rect.top) / 1);
         }
         // change split point coordination
         if (movingSplit) {
           ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
           movingObject.moveSplit(currentX - startX, currentY - startY);
-          movingObject.draw(drawingCanvas, scale);
+          movingObject.draw(drawingCanvas, 1);
           const rect = drawingCanvas.getBoundingClientRect();
-          setStartX((e.clientX - rect.left) / scale);
-          setStartY((e.clientY - rect.top) / scale);
+          setStartX((e.clientX - rect.left) / 1);
+          setStartY((e.clientY - rect.top) / 1);
         }
       }
     }
@@ -472,8 +472,8 @@ export default function Paint({
     if (!spliting) {
       let DrawingCtx = drawingCanvas.getContext("2d");
       const rect = drawingCanvas.getBoundingClientRect();
-      let currentX = (e.clientX - rect.left) / scale;
-      let currentY = (e.clientY - rect.top) / scale;
+      let currentX = (e.clientX - rect.left) / 1;
+      let currentY = (e.clientY - rect.top) / 1;
       // draw final shape to draw canvas and add it to shapes
       if (finishDrawing) {
         DrawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
@@ -494,7 +494,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              rect.draw(drawCanvas, scale);
+              rect.draw(drawCanvas, 1);
               newShapes = [...shapes, rect]; // create new array with new shape added
               setShapes(newShapes);
               break;
@@ -510,7 +510,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              plan.draw(drawCanvas, scale);
+              plan.draw(drawCanvas, 1);
               newShapes = [...shapes, plan]; // create new array with new shape added
               setShapes(newShapes);
               break;
@@ -528,7 +528,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              circle.draw(drawCanvas, scale);
+              circle.draw(drawCanvas, 1);
               newShapes = [...shapes, circle]; // create new array with new shape added
               setShapes(newShapes);
               break;
@@ -542,7 +542,7 @@ export default function Paint({
                 stroke,
                 Opacity
               );
-              line.draw(drawCanvas, scale);
+              line.draw(drawCanvas, 1);
               newShapes = [...shapes, line]; // create new array with new shape added
               setShapes(newShapes);
               break;
@@ -594,8 +594,8 @@ export default function Paint({
   };
   const exportPdfPage = () => {
     const scaleFactor = 1;
-    const canvasWidth = (pdfRef.current.clientWidth / scale) * scaleFactor;
-    const canvasHeight = (pdfRef.current.clientHeight / scale) * scaleFactor;
+    const canvasWidth = (pdfRef.current.clientWidth / 1) * scaleFactor;
+    const canvasHeight = (pdfRef.current.clientHeight / 1) * scaleFactor;
     const mergedCanvas = document.createElement("canvas");
     mergedCanvas.width = canvasWidth;
     mergedCanvas.height = canvasHeight;
@@ -739,7 +739,7 @@ export default function Paint({
           setDrawTool={exportPdfPage}
           disable={false}
         />
-        {/* scale */}
+        {/* 1 */}
         <div className="flex justify-center items-center gap-2">
           <Image
             width={20}
@@ -748,16 +748,16 @@ export default function Paint({
             alt="zoonOut"
             className="cursor-pointer"
             onClick={() => {
-              if (scale == 0.5) {
+              if (1 == 0.5) {
                 return;
               } else {
-                setScale(scale - 0.5);
+                setScale(1 - 0.5);
               }
             }}
           />
           <input
             title="stroke"
-            value={scale}
+            value={1}
             className="w-[46px] h-[26px] rounded-md pl-2 text-black border border-black"
             onChange={(e) => setStroke(e.target.value)}
           />
@@ -767,7 +767,7 @@ export default function Paint({
             src={`/images/zoomIn.png`}
             alt="zoomIn"
             className="cursor-pointer"
-            onClick={() => setScale(scale + 0.5)}
+            onClick={() => setScale(1 + 0.5)}
           />
         </div>
         {/* opacity */}
@@ -989,7 +989,7 @@ export default function Paint({
             renderAnnotationLayer={false}
             renderTextLayer={false}
             onLoadSuccess={() => setLoaded(!loaded)}
-            scale={scale}
+            // 1={1}
           />
         </Document>
         <canvas
@@ -1006,7 +1006,7 @@ export default function Paint({
           onMouseUp={(e) => handleMouseUp(e)}
           onMouseLeave={(e) => handleMouseLeave(e)}
           width={PW}
-          scale={scale}
+          // 1={1}
           height={PH}
           className={`z-30 absolute top-0 left-0  
 							${tool == "erace" && "cursor-erace"}
@@ -1034,8 +1034,8 @@ export default function Paint({
                 <div
                   style={{
                     position: "absolute",
-                    top: startY * scale,
-                    left: startX * scale,
+                    top: startY * 1,
+                    left: startX * 1,
                   }}
                   className={`w-[270px] rounded-md z-50 gap-5 h-[130px] bg-white -translate-x-[100%] -translate-y-[100%] flex flex-col justify-start items-center`}
                 >
@@ -1065,8 +1065,8 @@ export default function Paint({
               <div
                 style={{
                   position: "absolute",
-                  top: startY * scale,
-                  left: startX * scale,
+                  top: startY * 1,
+                  left: startX * 1,
                   zIndex: 100,
                 }}
                 className={`w-[270px] rounded-md z-50 gap-5 h-[130px] bg-white -translate-x-[100%] -translate-y-[100%] flex flex-col justify-start items-center`}
@@ -1121,7 +1121,7 @@ export default function Paint({
               className="outline-none bg-transparent absolute -translate-y-[73%] z-40"
               style={{
                 width: "4px",
-                fontSize: `${fontSize * scale}px`,
+                fontSize: `${fontSize * 1}px`,
                 color: color,
                 top: inputY,
                 left: inputX,
