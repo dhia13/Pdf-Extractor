@@ -266,10 +266,22 @@ Plan.prototype.moveSplit = function (nx, ny) {
 };
 // Rectangle Object
 export function Rect(x, y, w, h, color, filled, fillColor, stroke, opacity) {
-  this.x = x;
-  this.y = y;
-  this.w = w;
-  this.h = h;
+  if (w > 0 && h > 0) {
+    this.x = x;
+    this.y = y;
+  }
+  if (w < 0 && h > 0) {
+    this.x = x + w;
+    this.y = y;
+  }
+  if (w > 0 && h < 0) {
+    this.x = x;
+    this.y = y + h;
+  }
+  if (w < 0 && h < 0) {
+    this.x = x + w;
+    this.y = y + h;
+  }
   this.color = color;
   this.filled = filled;
   this.fillColor = fillColor;
@@ -297,18 +309,7 @@ Rect.prototype.isHovered = function (mouseX, mouseY, canvas, scale) {
   const x2 = this.x + this.w;
   const y1 = this.y;
   const y2 = this.y + this.h;
-  if (this.w < 0 && this.h > 0) {
-    return mouseX <= x1 && mouseX >= x2 && mouseY >= y1 && mouseY <= y2;
-  }
-  if (this.h < 0 && this.w > 0) {
-    return mouseX >= x1 && mouseX <= x2 && mouseY <= y1 && mouseY >= y2;
-  }
-  if (this.h < 0 && this.w < 0) {
-    return mouseX <= x1 && mouseX >= x2 && mouseY <= y1 && mouseY >= y2;
-  } else {
-    return mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
-  }
-  // return mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
+  return mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
 };
 
 Rect.prototype.move = function (nx, ny) {
