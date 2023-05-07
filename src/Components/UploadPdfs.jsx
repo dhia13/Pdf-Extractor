@@ -69,14 +69,15 @@ export default function UploadPdfs({
         )}
       </TabDiv>
       <Container1>
-        <Wrapper className="rounded-bl-md rounded-br-md">
+        <div className="rounded-bl-md rounded-br-md w-[1000px] h-[400px] flex-col bg-blue-500 justify-center items-center flex border border-black">
           <UploadBtn onClick={() => fileInput.current.click()}>
-            <img
-              src="/images/uploadpdf.png"
-              alt="back"
-              width="100px"
-              height="100px"
-              className=" ml-4 cursor-pointer"
+            <IoAddCircleSharp
+              style={{
+                position: "relative",
+                color: "black",
+                cursor: "pointer",
+              }}
+              size="50"
             />
             <input
               multiple={multiple}
@@ -87,8 +88,8 @@ export default function UploadPdfs({
               style={{ display: "none" }}
             />
           </UploadBtn>
-          <Paratext>Click or Drag to add your pdfs</Paratext>
-        </Wrapper>
+          <Paratext>Click the add button to upload your pdf files</Paratext>
+        </div>
       </Container1>
       <button
         className="w-[300px] h-[60px] text-white bg-[#228CDB] m-4 rounded-md hover:bg-[#0B7189]"
@@ -122,20 +123,6 @@ const SubHeading = styled.h1`
   line-height: 40px;
   color: #000000;
   text-align: "center";
-`;
-const Wrapper = styled.div`
-  position: relative;
-  z-index: 1;
-  background-color: #228cdb;
-  width: 1000px;
-  height: 400px;
-  border: 0.25px solid lightgray;
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  // overflow-x: auto;
 `;
 const UploadBtn = styled.div`
   display: flex;

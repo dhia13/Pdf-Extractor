@@ -266,6 +266,8 @@ Plan.prototype.moveSplit = function (nx, ny) {
 };
 // Rectangle Object
 export function Rect(x, y, w, h, color, filled, fillColor, stroke, opacity) {
+  this.w = Math.abs(w);
+  this.h = Math.abs(h);
   if (w > 0 && h > 0) {
     this.x = x;
     this.y = y;
