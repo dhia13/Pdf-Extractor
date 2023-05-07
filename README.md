@@ -11,7 +11,7 @@ functionality
 - and finaly extract a modified pdf
 sorry for the simple ui and lack of responsivness after all this is a side project 
 screen shots 
-[pdfMod1.png](https://postimg.cc/v41Yb3bD)
+[![pdfMod1.png](https://i.postimg.cc/QdmHgyzg/pdfMod1.png)](https://postimg.cc/v41Yb3bD)
 ![alt text](https://postimg.cc/XrTVJdYL)
 ![alt text](https://postimg.cc/HctHBN4vL)
 ![alt text](https://postimg.cc/0K2v3CVk)
