@@ -45,12 +45,18 @@ export default function Paint({
   const [opacitySlider, setOpacitySlider] = useState(false);
   // generals
   const [scale, setScale] = useState(1);
-  const [tool, setTool] = useState(settings.tool);
-  const [drawTool, setDrawTool] = useState(settings.drawTool);
-  const [stroke, setStroke] = useState(settings.stroke);
-  const [opacity, setOpacity] = useState(settings.opacity * 100);
-  const [Opacity, setRealOpacity] = useState(settings.opacity);
-  const [color, setColor] = useState(settings.color);
+  const [tool, setTool] = useState(settings.tool ? settings.tool : "draw");
+  const [drawTool, setDrawTool] = useState(
+    settings.drawTool ? settings.drawTool : "rect"
+  );
+  const [stroke, setStroke] = useState(settings.stroke ? settings.stroke : 4);
+  const [opacity, setOpacity] = useState(
+    settings.opacity ? settings.opacity * 100 : 100
+  );
+  const [Opacity, setRealOpacity] = useState(
+    settings.opacity ? settings.opacity : 1
+  );
+  const [color, setColor] = useState(settings.color ? settings.color : "black");
   // drawing steps
   const [drawing, setDrawing] = useState(false);
   const [finishDrawing, setFinishDrawing] = useState(false);
