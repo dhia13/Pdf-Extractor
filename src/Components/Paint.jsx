@@ -44,7 +44,7 @@ export default function Paint({
   const [zoomSlider, setZoomSlider] = useState(false);
   const [opacitySlider, setOpacitySlider] = useState(false);
   // generals
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(settings.scale ? settings.scale : 1.5);
   const [tool, setTool] = useState(settings.tool ? settings.tool : "draw");
   const [drawTool, setDrawTool] = useState(
     settings.drawTool ? settings.drawTool : "rect"

@@ -47,16 +47,6 @@ export default function UploadPdfs({
   return (
     <div className="w-full h-full flex justify-center items-center flex-col">
       <div className="flex  justify-center items-center gap-4">
-        <img
-          src="/images/back.png"
-          alt="back"
-          width="32px"
-          height="32px"
-          onClick={() => {
-            setPdfDocs([]), setFileNames([]), setActiveStep(0);
-          }}
-          className="cursor-pointer"
-        />
         <Heading>
           Let’s get started! Upload your Pdfs to begin modifying them
         </Heading>
@@ -81,13 +71,12 @@ export default function UploadPdfs({
       <Container1>
         <Wrapper className="rounded-bl-md rounded-br-md">
           <UploadBtn onClick={() => fileInput.current.click()}>
-            <IoAddCircleSharp
-              style={{
-                position: "relative",
-                color: "black",
-                cursor: "pointer",
-              }}
-              size="50"
+            <img
+              src="/images/uploadpdf.png"
+              alt="back"
+              width="100px"
+              height="100px"
+              className=" ml-4 cursor-pointer"
             />
             <input
               multiple={multiple}
@@ -98,7 +87,7 @@ export default function UploadPdfs({
               style={{ display: "none" }}
             />
           </UploadBtn>
-          <Paratext>Click the add button to upload your pdf files</Paratext>
+          <Paratext>Click or Drag to add your pdfs</Paratext>
         </Wrapper>
       </Container1>
       <button
