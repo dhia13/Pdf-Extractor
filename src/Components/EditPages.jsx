@@ -1,8 +1,14 @@
 import styled from "styled-components";
 import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
+import { PDFDocument, PDFImage, StandardFonts, rgb } from "pdf-lib";
+import { IoAddCircleSharp } from "react-icons/io5";
 import { Document, Page, pdfjs } from "react-pdf";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  createImageBlob,
+  getImageSize,
+} from "./PaintComponents/ImagesManipulation";
 // step 4
 export default function EditPages({
   sketchInfo,
@@ -11,6 +17,7 @@ export default function EditPages({
   setSketchInfo,
   autoSave,
   setAutoSave,
+  setPdfDoc,
 }) {
   const [file, setFile] = useState(null);
   const [showPdf, setShowPdf] = useState(false);
@@ -30,20 +37,10 @@ export default function EditPages({
   }, [autoSave]);
   useEffect(() => {
     Doc2File();
-  }, []);
+  }, [pdfDoc]);
   const pdfRef = useRef(null);
+  const imagesInput = useRef(null);
   const [page, setPage] = useState(1);
-  const handleDownloadRaw = async () => {
-    const newBlob = await pdfDoc.save();
-    const file = new File([newBlob], "testssPdf.pdf", {
-      type: "application/pdf",
-    });
-    const url = URL.createObjectURL(file);
-    const link = document.createElement("a");
-    link.download = "kizaruEdit.pdf";
-    link.href = url;
-    link.click();
-  };
   const exportPdfPages = async () => {
     const canvasWidth = pdfRef.current.clientWidth;
     const canvasHeight = pdfRef.current.clientHeight;
@@ -106,6 +103,88 @@ export default function EditPages({
     setShowPdf(true);
     setPage(id);
   };
+  const handleImagesChange = async (event) => {
+    let imagesPdf = await PDFDocument.create();
+    let newSketchInfo = sketchInfo;
+    let newPdfDoc = pdfDoc;
+    let newPdf;
+    let numImagesLoaded = 0;
+    for (let i = 0; i < event.target.files.length; i++) {
+      const file = event.target.files[i];
+      const reader = new FileReader();
+      if (file.type === "image/jpeg" || file.type === "image/png") {
+        const blob = await createImageBlob(file);
+        let size = await getImageSize(blob);
+        const imgCanvas = document.createElement("canvas");
+        const width = size.width;
+        const height = size.height;
+        imgCanvas.width = width;
+        imgCanvas.height = height;
+        const imgCtx = imgCanvas.getContext("2d");
+        newPdf = new jsPDF({
+          orientation: size.width > size.height ? "landscape" : "portrait",
+          unit: "px",
+          format: [size.width, size.height],
+        });
+        reader.onload = function () {
+          const img = new Image();
+          img.onload = async function () {
+            imgCtx.drawImage(img, 0, 0);
+            newPdf.addImage(
+              imgCanvas.toDataURL("image/jpeg"),
+              "jpeg",
+              0,
+              0,
+              size.width,
+              size.height,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              {
+                pageNumber: 1,
+              }
+            );
+            const pdfBuffer = newPdf.output("arraybuffer");
+            const imgPdf = await PDFDocument.load(pdfBuffer);
+            const copiedPages = await imagesPdf.copyPages(
+              imgPdf,
+              imgPdf.getPageIndices()
+            );
+            copiedPages.forEach((page) => imagesPdf.addPage(page));
+            newSketchInfo.pages.push({
+              id: newSketchInfo.pages.length,
+              page: newSketchInfo.pages.length + 1,
+              edited: false,
+              preview: false,
+              sketches: { shapes: [] },
+            });
+            newSketchInfo.totalPages = newSketchInfo.totalPages + 1;
+            numImagesLoaded++;
+            if (numImagesLoaded === event.target.files.length) {
+              mergeAndSetPdf();
+            }
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const mergeAndSetPdf = async () => {
+      let newPages = await newPdfDoc.copyPages(
+        imagesPdf,
+        imagesPdf.getPageIndices()
+      );
+      newPages.forEach((page) => newPdfDoc.addPage(page));
+      const finalMergeBytes = await newPdfDoc.save();
+      const finalPdf = await PDFDocument.load(finalMergeBytes);
+      setPdfDoc(finalPdf);
+      setSketchInfo(newSketchInfo);
+    };
+  };
   return (
     <div className="w-full h-full relative">
       <div className="w-full h-full flex flex-col justify-center items-center absolute top-0 left-0 z-50">
@@ -125,7 +204,7 @@ export default function EditPages({
           />
         </div>
         {/* render pages */}
-        <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start">
+        <PagesDiv className="flex w-[1000px] h-[400px] relative flex-col justify-start items-start border border-black px-2  rounded-tr-sm rounded-tl-sm">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="items">
               {(provided) => (
@@ -142,7 +221,7 @@ export default function EditPages({
                     >
                       {(provided) => (
                         <li
-                          className="flex justify-between items-start font-medium flex-col w-full gap-1"
+                          className="flex justify-between items-start font-medium flex-col w-full gap-1 px-4 py-2 border-b border-black"
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
@@ -172,7 +251,6 @@ export default function EditPages({
                               />
                             </div>
                           </div>
-                          <Divider />
                         </li>
                       )}
                     </Draggable>
@@ -183,11 +261,30 @@ export default function EditPages({
             </Droppable>
           </DragDropContext>
         </PagesDiv>
+        <div className="w-[1000px] h-[45px] flex justify-between items-center px-4 border-b border-l border-r border-black mb-4 rounded-br-sm rounded-bl-sm">
+          <p className="mx-3 font-semibold text-lg">add images as pdf pages</p>
+          <div className="relative w-[45px] h-[45px] justify-center items-center flex overflow-hidden cursor-pointer mx-3">
+            <div className="w-[45px] opacity-0 h-[45px] justify-center items-center flex absolute top-0 left-0 overflow-hidden cursor-pointer">
+              <input
+                multiple={true}
+                type="file"
+                accept="image/png, image/jpeg"
+                ref={imagesInput}
+                onChange={handleImagesChange}
+                className="cursor-pointer"
+              />
+            </div>
+            <img
+              src="/images/upload.png"
+              alt="back"
+              width="32px"
+              height="32px"
+              className=" ml-4 cursor-pointer"
+            />
+          </div>
+        </div>
         <ContinueBtn className="hover:bg-[#0B7189]" onClick={exportPdfPages}>
           Download Edited
-        </ContinueBtn>
-        <ContinueBtn className="hover:bg-[#0B7189]" onClick={handleDownloadRaw}>
-          Download Raw
         </ContinueBtn>
       </div>
       <div
@@ -237,11 +334,6 @@ const ContinueBtn = styled.button`
   float: left;
   margin-bottom: 10px;
   width: 400px;
-`;
-const Divider = styled.div`
-  border-bottom: 1px solid lightgray;
-  margin-bottom: 12px;
-  width: 100%;
 `;
 const PagesDiv = styled.div`
   overflow-y: auto;

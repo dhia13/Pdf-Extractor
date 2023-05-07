@@ -315,7 +315,7 @@ Rect.prototype.move = function (nx, ny) {
   this.y += ny;
 };
 // Circle Object
-function Circle(x, y, r, color, filled, fillColor, stroke, opacity) {
+export function Circle(x, y, r, color, filled, fillColor, stroke, opacity) {
   this.x = x;
   this.y = y;
   this.r = r;
@@ -354,7 +354,7 @@ Circle.prototype.move = function (nx, ny) {
 };
 
 // Line Object
-function Line(x, y, xb, yb, color, stroke, opacity) {
+export function Line(x, y, xb, yb, color, stroke, opacity) {
   this.x = x;
   this.y = y;
   this.xb = xb;
@@ -397,7 +397,16 @@ Line.prototype.move = function (nx, ny) {
 };
 
 // Text Object
-function Text(x, y, text, fontSize, fontWeight, fontStyle, color, opacity) {
+export function Text(
+  x,
+  y,
+  text,
+  fontSize,
+  fontWeight,
+  fontStyle,
+  color,
+  opacity
+) {
   this.x = x;
   this.y = y;
   this.text = text;

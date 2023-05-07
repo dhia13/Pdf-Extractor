@@ -18,7 +18,6 @@ export default function Paint({
   autoSave,
   settings,
 }) {
-  console.log(settings);
   // tools
   const replaceElementInArray = (index, newShape) => {
     const newShapes = [...shapes]; // Create a copy of the original array
@@ -45,7 +44,7 @@ export default function Paint({
   const [zoomSlider, setZoomSlider] = useState(false);
   const [opacitySlider, setOpacitySlider] = useState(false);
   // generals
-  const [scale, setScale] = useState(2);
+  const [scale, setScale] = useState(settings.scale);
   const [tool, setTool] = useState(settings.tool);
   const [drawTool, setDrawTool] = useState(settings.drawTool);
   const [stroke, setStroke] = useState(settings.stroke);

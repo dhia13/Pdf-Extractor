@@ -64,28 +64,27 @@ export default function UploadPdfs({
       <SubHeading>
         Click the done button when your are finished uploading your files.
       </SubHeading>
-      <div className="flex justify-center items-center">
-        <SubHeading>Multiple files </SubHeading>
-        <input
-          className="w-24 bg-red-500"
-          type="checkbox"
-          checked={multiple}
-          onChange={() => setMultiple(!multiple)}
-        />
-      </div>
-      <TabDiv>
-        {fileNames &&
+      <SubHeading>you can upload as many files as you want</SubHeading>
+      <TabDiv className="flex justify-start shadow-sm bg-white shadow-deep-purple-200 items-center h-[80px] overflow-x-scroll w-[1000px] border border-black mt-2 mb-1 rounded-tl-md rounded-tr-md">
+        {fileNames.length > 0 ? (
           fileNames.map((name, index) => (
-            <TabOptions key={index}>{name}</TabOptions>
-          ))}
+            <TabOptions key={index} className="shadow-sm shadow-black">
+              {name}
+            </TabOptions>
+          ))
+        ) : (
+          <div className="w-full flex justify-center items-center ">
+            <p className="">Selected pdf files will apear here</p>
+          </div>
+        )}
       </TabDiv>
       <Container1>
-        <Wrapper>
+        <Wrapper className="rounded-bl-md rounded-br-md">
           <UploadBtn onClick={() => fileInput.current.click()}>
             <IoAddCircleSharp
               style={{
                 position: "relative",
-                color: "#1ef080",
+                color: "black",
                 cursor: "pointer",
               }}
               size="50"
@@ -108,8 +107,10 @@ export default function UploadPdfs({
       >
         Continue to select pages
       </button>
-      {err && (
+      {err ? (
         <SubHeading style={{ color: "red" }}>Please select a file</SubHeading>
+      ) : (
+        <div className="w-[200px] h-[40px] opacity-0"></div>
       )}
     </div>
   );
@@ -139,7 +140,6 @@ const Wrapper = styled.div`
   background-color: #228cdb;
   width: 1000px;
   height: 400px;
-  border-radius: 10px;
   border: 0.25px solid lightgray;
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -169,15 +169,6 @@ const Paratext = styled.p`
   padding-bottom: 20px;
 `;
 const TabDiv = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  white-space: nowrap;
-  height: 70px;
-  overflow-x: scroll;
-  margin-bottom: 10px;
-  width: 1000px;
-  gap: 20px;
   ::-webkit-scrollbar-track {
     border-radius: 10px;
     background-color: #0b7189;
@@ -190,6 +181,9 @@ const TabDiv = styled.div`
     border-radius: 10px;
     background-color: #5fee8a;
   }
+  ::-webkit-scrollbar-thumb:hover {
+    cursor: grab;
+  }
 `;
 const TabOptions = styled.button`
   flex: 0 0 auto;
@@ -200,6 +194,8 @@ const TabOptions = styled.button`
   height: 50px;
   padding: 0px 10px 0px 10px;
   white-space: nowrap;
+  margin-left: 10px;
+  margin-right: 10px;
   font-weight: bold;
   :focus,
   :active {

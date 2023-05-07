@@ -53,7 +53,7 @@ const PdfEditor = () => {
     setActiveStep(5);
   };
   return (
-    <div className="w-screen h-screen overflow-hidden">
+    <div className="w-screen h-screen overflow-hidden bg-gray-200">
       {/*  upload pdf from computer button*/}
       {activeStep == 0 && <StartingPage setActiveStep={setActiveStep} />}
       {/* select pdfs and then press continue */}
@@ -95,6 +95,7 @@ const PdfEditor = () => {
           setSketchInfo={setSketchInfo}
           autoSave={autoSave}
           setAutoSave={setAutoSave}
+          setPdfDoc={setPdfDoc}
         />
       )}
       {/* draw canvas paint */}

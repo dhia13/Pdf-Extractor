@@ -152,10 +152,10 @@ export default function SelectPages({
         the plus button
       </SubHeading>
       {/* render pages */}
-      <TabDiv>
+      <TabDiv className="flex justify-start items-center h-[80px] overflow-x-scroll w-[1000px] border border-black my-2 rounded-tl-md rounded-tr-md">
         {fileNames.map((name, index) => (
           <TabOptions
-            className="hover:bg-[##707070]"
+            className="hover:bg-[##707070] shadow-md"
             style={{
               backgroundColor: name === selectedPdf && "#0B7189",
               color: name === selectedPdf && "white",
@@ -169,41 +169,37 @@ export default function SelectPages({
           </TabOptions>
         ))}
       </TabDiv>
-      <div className="flex w-[1000px] h-[400px] relative">
+      <PagesDiv className="flex w-[1000px] h-[400px] relative border border-black mb-4 overflow-y-auto rounded-br-md rounded-bl-md">
         {extracted &&
           pages.map((el, i) => (
             <PagesDiv
+              className="w-full h-full flex flex-col justify-center items-center"
               key={i}
               style={{
                 display: i === selectedDoc ? "block" : "none",
               }}
             >
-              <ul
-                style={{
-                  width: "100%",
-                  height: "90%",
-                }}
-              >
+              <ul className="w-full h-full flex flex-col px-3 gap-2">
                 <PdfTitle>{el.name}</PdfTitle>
                 {el.map(({ index, name, selected }) => (
-                  <div key={index}>
-                    <li className="flex justify-between items-start font-medium m-1 ">
+                  <div key={index} className="">
+                    <li className="flex justify-between items-start font-medium border-b border-black py-3 px-2">
                       {name}
                       <div className="flex justify-center gap-2 items-center border border-red-200">
                         <StyledCheckbox
                           type="checkbox"
                           //   checked={selectedPages[i].pages.includes(index)}
                           onChange={() => handlePageSelection(i, index)}
+                          className="w-[20px] h-[40px]"
                         />
                       </div>
                     </li>
-                    <Divider2 />
                   </div>
                 ))}
               </ul>
             </PagesDiv>
           ))}
-      </div>
+      </PagesDiv>
       <ContinueBtn
         onClick={handleNext}
         className="bg-[#228CDB] hover:bg-[#0B7189]"
@@ -241,13 +237,6 @@ const ContinueBtn = styled.button`
   color: white;
   float: left;
 `;
-const Divider2 = styled.div`
-  border-bottom: 1px solid lightgray;
-  // margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 3px;
-  margin-right: 3px;
-`;
 const StyledCheckbox = styled.input.attrs({
   type: "checkbox",
 })`
@@ -260,38 +249,23 @@ const PdfTitle = styled.p`
   display: inline-block;
   color: black;
   font-weight: 700;
-  margin-bottom: 10px;
-  width: 80%;
   white-space: nowrap;
 `;
-const TabOptions = styled.button`
-  flex: 0 0 auto;
-  background-color: #228cdb;
-  overflow: hidden;
-  border-radius: 10px;
-  color: #ffffff;
-  height: 50px;
-  padding: 0px 10px 0px 10px;
-  white-space: nowrap;
-  font-weight: bold;
-  :focus,
-  :active {
-    outline: none;
-  }
-`;
-
 const TabDiv = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: start;
   white-space: nowrap;
-  height: 70px;
+  height: 80px;
   overflow-x: scroll;
   margin-bottom: 10px;
   width: 1000px;
-  gap: 20px;
+  padding-top: 5px;
+  padding: 5px;
+  gap: 10px;
+  border: 1px solid black;
+  margin: 20px;
   ::-webkit-scrollbar-track {
-    border-radius: 10px;
     background-color: #0b7189;
   }
   ::-webkit-scrollbar {
@@ -304,23 +278,33 @@ const TabDiv = styled.div`
   }
 `;
 const PagesDiv = styled.div`
-  overflow-y: auto;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 70%;
-  margin-top: 10px;
   ::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background-color: #f5f5f5;
+    border-radius: 10px, 0px, 10px, 0px;
+    background-color: #0b7189;
   }
   ::-webkit-scrollbar {
-    width: 7px !important;
-    background-color: #f5f5f5;
+    height: 7px !important;
+    background-color: white;
   }
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background-color: #2994ff;
+    background-color: #5fee8a;
+  }
+`;
+const TabOptions = styled.button`
+  flex: 0 0 auto;
+  background-color: #228cdb;
+  overflow: hidden;
+  border-radius: 10px;
+  color: #ffffff;
+  height: 50px;
+  padding: 0px 10px 0px 10px;
+  white-space: nowrap;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-weight: bold;
+  :focus,
+  :active {
+    outline: none;
   }
 `;
