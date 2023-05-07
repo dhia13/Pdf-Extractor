@@ -7,7 +7,7 @@ import EditPages from "./Components/EditPages";
 import Paint from "./Components/Paint"; // active step 5
 import Test from "./Components/PaintComponents/Test";
 const PdfEditor = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(1);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [settings, setSettings] = useState(null);
   const [autoSave, setAutoSave] = useState(false);
@@ -55,7 +55,7 @@ const PdfEditor = () => {
   return (
     <div className="w-screen h-screen overflow-hidden bg-gray-200">
       {/*  upload pdf from computer button*/}
-      {activeStep == 0 && <StartingPage setActiveStep={setActiveStep} />}
+      {/* {activeStep == 0 && <StartingPage setActiveStep={setActiveStep} />} */}
       {/* select pdfs and then press continue */}
       {activeStep == 1 && (
         <UploadPdfs
