@@ -83,6 +83,8 @@ export default function Paint({
   const [text, setText] = useState("");
   const [inputX, setInputX] = useState(0);
   const [inputY, setInputY] = useState(0);
+  const [textModX, setTextModX] = useState(0);
+  const [textModY, setTextModY] = useState(0);
   // save settings
   useEffect(() => {
     if (settings.scale !== scale) {
@@ -137,6 +139,7 @@ export default function Paint({
     tool,
   ]);
   const inputRef = useRef(null);
+  // focus typing input
   useEffect(() => {
     if (writing && inputRef.current) {
       setTimeout(() => {
@@ -147,6 +150,8 @@ export default function Paint({
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.width = `${inputRef.current.scrollWidth}px`;
+      setTextModX(inputX + inputRef.current.scrollWidth);
+      setTextModY(inputY);
     }
   }, [text, fontSize, fontWeight, fontStyle]);
   function handleCheckboxChange() {
@@ -216,6 +221,7 @@ export default function Paint({
   const [shapes, setShapes] = useState(
     sketchInfo.pages[pageIndex].sketches.shapes
   );
+  // load width and height values
   useEffect(() => {
     if (pdfRef) {
       const el = pdfRef.current;
@@ -288,6 +294,8 @@ export default function Paint({
       setWriting(true);
       setInputX(e.clientX - rect.left);
       setInputY(e.clientY - rect.top);
+      setTextModX(e.clientX - rect.left);
+      setTextModY(e.clientY - rect.top);
     }
     // fill shapes
     if (drawTool == "fill" && hovered) {
@@ -655,14 +663,6 @@ export default function Paint({
     <div className="relative w-full h-full">
       {/* hidden menus */}
       <>
-        {writing && (
-          <>
-            <div
-              className="w-screen h-screen absolute top-0 left-0 z-50"
-              onClick={() => handleSubmitText()}
-            ></div>
-          </>
-        )}
         {showColor && (
           <div
             className="absolute top-0 left-0 w-screen h-screen z-50"
@@ -834,63 +834,6 @@ export default function Paint({
             />
           )}
         </div>
-        {/* text settings  */}
-        {writing && (
-          <div className="w-[175px] h-full z-50 flex justify-center items-start flex-col gap-2 px-3 border-l border-r border-gray-400">
-            <div className="flex w-full justify-between items-start">
-              <label htmlFor="fontSizeSelect">Font Size:</label>
-              <select
-                id="fontSizeSelect"
-                value={fontSize}
-                onChange={(e) => setFontSize(e.target.value)}
-              >
-                <option value={8}>8</option>
-                <option value={9}>9</option>
-                <option value={11}>11</option>
-                <option value={14}>14</option>
-                <option value={16}>16</option>
-                <option value={18}>18</option>
-                <option value={20}>20</option>
-                <option value={22}>22</option>
-                <option value={24}>24</option>
-                <option value={26}>26</option>
-                <option value={28}>28</option>
-                <option value={32}>32</option>
-                <option value={36}>36</option>
-                <option value={42}>42</option>
-                <option value={72}>72</option>
-              </select>
-            </div>
-            <div className="flex w-full justify-between items-start">
-              <label htmlFor="fontSizeSelect">Font Weight:</label>
-              <select
-                id="fontSizeSelect"
-                value={fontWeight}
-                onChange={(e) => setFontWeight(e.target.value)}
-              >
-                <option value={100}>100</option>
-                <option value={200}>200</option>
-                <option value={300}>300</option>
-                <option value={400}>400</option>
-                <option value={500}>500</option>
-                <option value={600}>600</option>
-                <option value={700}>700</option>
-                <option value={800}>800</option>
-                <option value={900}>900</option>
-              </select>
-            </div>
-            <>
-              <img
-                src={`/images/fontStyleNormal.png`}
-                alt="fontStyle"
-                className={`w-[24px] h-[24px] border border-black rounded-md cursor-pointer ${
-                  fontStyle == "normal" ? "bg-white" : "bg-blue-200"
-                }`}
-                onClick={handleCheckboxChange}
-              />
-            </>
-          </div>
-        )}
       </div>
       {/* left bar */}
       <div
@@ -1122,23 +1065,102 @@ export default function Paint({
         )}
         {writing && (
           <>
-            <input
-              className="outline-none bg-transparent absolute -translate-y-[73%] z-40"
+            <div
+              className="z-40 absolute "
               style={{
-                width: "4px",
-                fontSize: `${fontSize * scale}px`,
-                color: color,
                 top: inputY,
                 left: inputX,
-                fontWeight: fontWeight,
-                fontStyle: fontStyle,
               }}
-              type="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              ref={inputRef}
-              onKeyDown={handleKeyPress}
-            />
+            >
+              <input
+                className="outline-none bg-transparent absolute -translate-y-[73%] z-40"
+                type="text"
+                style={{
+                  width: "4px",
+                  fontSize: `${fontSize * scale}px`,
+                  color: color,
+                  fontWeight: fontWeight,
+                  fontStyle: fontStyle,
+                }}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                ref={inputRef}
+                onKeyDown={handleKeyPress}
+              />
+            </div>
+            <>
+              <div
+                className="w-[calc(100vw-80px)] h-[calc(100vh-110px)] absolute top-0 left-0 z-40 opacity-40"
+                onClick={() => handleSubmitText()}
+              ></div>
+              <div
+                className=" translate-x-[-50%] mt-2 z-50 flex justify-center items-center
+             bg-[#009CE0] absolute shadow-sm px-2 gap-2 shadow-blue-gray-600 rounded-md border-l py-1 border-r border-gray-400"
+                style={{
+                  top: textModY,
+                  left: textModX,
+                }}
+              >
+                <div className="flex w-full justify-center items-center gap-1">
+                  <label htmlFor="fontSizeSelect">Size</label>
+                  <select
+                    id="fontSizeSelect"
+                    value={fontSize}
+                    className="rounded-sm outline-none"
+                    onChange={(e) => setFontSize(e.target.value)}
+                  >
+                    <option value={8}>8</option>
+                    <option value={9}>9</option>
+                    <option value={11}>11</option>
+                    <option value={14}>14</option>
+                    <option value={16}>16</option>
+                    <option value={18}>18</option>
+                    <option value={20}>20</option>
+                    <option value={22}>22</option>
+                    <option value={24}>24</option>
+                    <option value={26}>26</option>
+                    <option value={28}>28</option>
+                    <option value={32}>32</option>
+                    <option value={36}>36</option>
+                    <option value={42}>42</option>
+                    <option value={72}>72</option>
+                  </select>
+                </div>
+                <div className="flex w-full justify-center items-center gap-1">
+                  <label htmlFor="fontSizeSelect">Weight</label>
+                  <select
+                    id="fontSizeSelect"
+                    value={fontWeight}
+                    className="rounded-sm outline-none"
+                    onChange={(e) => setFontWeight(e.target.value)}
+                  >
+                    <option value={300}>300</option>
+                    <option value={600}>600</option>
+                    <option value={900}>900</option>
+                  </select>
+                </div>
+                <>
+                  <img
+                    src={`/images/fontStyleNormal.png`}
+                    alt="fontStyle"
+                    className={`w-[24px] h-[24px] border border-black rounded-md cursor-pointer ml-1 ${
+                      fontStyle == "normal" ? "bg-white" : "bg-blue-200"
+                    }`}
+                    onClick={handleCheckboxChange}
+                  />
+                </>
+                <>
+                  <img
+                    src={`/images/fontStyleNormal.png`}
+                    alt="fontStyle"
+                    className={`w-[24px] h-[24px] border border-black rounded-md cursor-pointer ml-1 ${
+                      fontStyle == "normal" ? "bg-white" : "bg-blue-200"
+                    }`}
+                    onClick={handleCheckboxChange}
+                  />
+                </>
+              </div>
+            </>
           </>
         )}
       </div>
